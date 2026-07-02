@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTheme } from "../../Context/ThemeContext";
 
 const tabs = [
   "Frequent Questions",
@@ -52,9 +53,11 @@ const stats = [
   },
 ];
 
-export default function AboutSection() {
+export default function AboutUs() {
   const [activeTab, setActiveTab] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(0);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <section className="bg-white py-8 font-sans px-5 sm:px-8 md:px-12.5">
@@ -84,18 +87,23 @@ export default function AboutSection() {
               </nav>
             </section>
 
-            <section className="bg-white rounded-[10px] p-5 sm:p-6 lg:p-10 flex flex-col lg:flex-row gap-8">
+            <section
+              className="rounded-[10px] p-5 sm:p-6 lg:p-10 flex flex-col lg:flex-row gap-8 transition-colors duration-300"
+              style={{
+                backgroundColor: isDark ? "#03081F" : "#FFFFFF",
+              }}
+            >
               <section className="lg:w-[40%] lg:border-r border-white/10 lg:pr-10">
                 <ul className="space-y-3">
                   {questions.map((question, index) => (
-                    <li key={question} >
+                    <li key={question}>
                       <button
                         type="button"
                         onClick={() => setActiveQuestion(index)}
                         className={`w-fit text-left rounded-full px-3 py-3 font-bold text-xs sm:text-sm lg:text-base transition-all cursor-pointer ${
                           activeQuestion === index
                             ? "bg-[#FC8A06]"
-                            : "text-black hover:bg-white/10"
+                            : `${isDark ? "text-white hover:bg-white/10" : "text-black hover:bg-black/5"}`
                         }`}
                       >
                         {question}
@@ -130,7 +138,11 @@ export default function AboutSection() {
                   ))}
                 </section>
 
-                <p className="text-center text-[#03081F] mt-8 text-sm leading-relaxed px-4">
+                <p
+                  className={`text-center mt-8 text-sm leading-relaxed px-4 ${
+                    isDark ? "text-white" : "text-[#03081F]"
+                  }`}
+                >
                   Order.UK simplifies the food ordering process. Browse through
                   our diverse menu, select your favorite dishes, and proceed to
                   checkout. Your delicious meal will be on its way to your

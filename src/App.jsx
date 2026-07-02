@@ -1,10 +1,12 @@
-import AboutUs from "./components/Home/AboutUs";
+import { Routes, Route } from "react-router";
+
+import Home from "./Pages/Customer/Home";
 
 function App() {
   return (
-    <>
-      <AboutUs />
-    </>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
   );
 }
 
