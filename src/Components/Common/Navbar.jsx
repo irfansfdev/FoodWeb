@@ -21,8 +21,8 @@ const Navbar = () => {
   return (
     <>
       {/* ── Top promo / utility strip ─────────────────────────── */}
-      <div className="w-full max-w-[1528px] mx-auto bg-brand-offwhite border-b border-x border-black/10 rounded-b-card overflow-hidden font-body text-black">
-        <div className="h-auto lg:h-[70px] flex flex-col lg:flex-row lg:items-center lg:justify-between px-4 lg:px-[137px] py-3 lg:py-0 gap-2 lg:gap-0">
+      <div className="w-full max-w-382 mx-auto bg-brand-offwhite border-b border-x border-black/10 rounded-b-card overflow-hidden font-body text-black">
+        <div className="h-auto lg:h-17.5 flex flex-col lg:flex-row lg:items-center lg:justify-between px-4 lg:px-34.25 py-3 lg:py-0 gap-2 lg:gap-0">
 
           {/* Promo text */}
           <div className="flex items-center gap-2 text-[13px] lg:text-[15px] font-medium">

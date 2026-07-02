@@ -15,7 +15,7 @@ const HeroBanner = () => {
 
   return (
     <div
-      className="relative mx-auto mt-8 max-w-[1528px] w-[calc(100%-2rem)] lg:w-full h-[610px] border border-black/20 rounded-[12px] overflow-hidden"
+      className="relative mx-auto mt-8  max-w-[1528px] w-[calc(100%-2rem)] lg:w-full h-[610px] border border-black/20 rounded-[12px] overflow-hidden "
       style={{ backgroundColor: isDark ? '#03081F' : '#FBFBFB' }}
     >
       {/* Left: text + search — must render ABOVE the hero images (Figma layer order) */}
