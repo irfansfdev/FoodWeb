@@ -19,7 +19,7 @@ function DealsGrid() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <section className="px-6 py-8">
+    <section className="px-20 py-8">
       <div className="flex items-center">
         <h2 className="text-2xl font-bold mb-4">Up to -40% 🎊 Order.uk exclusive deals</h2>
         <nav className="hidden lg:flex flex-wrap justify-end gap-1 mb-4 ml-auto">

@@ -60,7 +60,7 @@ export default function AboutUs() {
   const isDark = theme === "dark";
 
   return (
-    <section className="bg-white py-8 font-sans px-5 sm:px-8 md:px-12.5">
+    <section className="bg-white py-8 px-5 sm:px-8 md:px-20">
       <div className="w-full">
         <section className="bg-[#F4F4F4] rounded-md p-6 sm:p-8 lg:p-12">
           <div className="w-full lg:w-[90%] mx-auto">

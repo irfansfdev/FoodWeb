@@ -15,22 +15,22 @@ const HeroBanner = () => {
 
   return (
     <div
-      className="relative mx-auto mt-8  max-w-[1528px] w-[calc(100%-2rem)] lg:w-full h-[610px] border border-black/20 rounded-[12px] overflow-hidden "
+      className="relative mx-auto mt-8  max-w-382 w-[calc(100%-2rem)] lg:w-full h-152.5 border border-black/20 rounded-[12px] overflow-hidden "
       style={{ backgroundColor: isDark ? '#03081F' : '#FBFBFB' }}
     >
       {/* Left: text + search — must render ABOVE the hero images (Figma layer order) */}
       <div
-        className="absolute left-0 top-0 h-full w-[550px] flex flex-col justify-center pl-[157px] z-50 select-none"
+        className="absolute left-0 top-0 h-full w-137.5 flex flex-col justify-center pl-39.25 z-50 select-none"
         style={{ color: isDark ? '#FFFFFF' : '#03081F' }}
       >
-        <p className="text-[16px] font-normal leading-[24px] m-0">
+        <p className="text-[16px] font-normal leading-6 m-0">
           Order Restaurant food, takeaway and groceries.
         </p>
 
-        <h1 className="text-[54px] font-semibold leading-[60px] tracking-tight m-0 mt-3 w-[509px]">
+        <h1 className="text-[54px] font-semibold leading-15 tracking-tight m-0 mt-3 w-127.25">
           Feast Your Senses,
           <br />
-          <span className="text-[#fc8a06]">Fast and Fresh</span>
+          <span className="text-brand-orange">Fast and Fresh</span>
         </h1>
 
         <div className="flex flex-col mt-8">
@@ -38,15 +38,15 @@ const HeroBanner = () => {
             Enter a postcode to see what we deliver
           </label>
 
-          <div className="flex items-center gap-3 w-[373px] h-[57px]">
+          <div className="flex items-center gap-3 w-93.25 h-14.25">
             <input
               type="text"
               placeholder="e.g. EC4R 3TE"
-              className="flex-1 h-full bg-white border border-black/40 rounded-full px-6 text-[15px] text-black placeholder-black/60 font-normal outline-none focus:border-[#fc8a06] transition-colors"
+              className="flex-1 h-full bg-white border border-black/40 rounded-full px-6 text-[15px] text-black placeholder-black/60 font-normal outline-none focus:border-brand-orange transition-colors"
             />
             <button
               type="button"
-              className="shrink-0 h-[57px] w-[188px] flex items-center justify-center bg-[#fc8a06] text-white font-bold text-[16px] rounded-full hover:bg-[#e07a00] active:scale-[0.98] shadow-md transition-all"
+              className="shrink-0 h-14.25 w-47 flex items-center justify-center bg-brand-orange text-white font-bold text-[16px] rounded-full hover:bg-[#e07a00] active:scale-[0.98] shadow-md transition-all"
             >
               Search
             </button>
@@ -55,7 +55,7 @@ const HeroBanner = () => {
       </div>
 
       {/* Orange corner shape — identical in both themes */}
-      <div className="absolute right-0 bottom-0 w-[626px] h-[565px] overflow-hidden rounded-tl-[282px] rounded-br-[12px] z-0">
+      <div className="absolute right-0 bottom-0 w-156.5 h-141.25 overflow-hidden rounded-tl-[282px] rounded-br-[12px] z-0">
         <img
           src={orangeShape}
           alt=""
@@ -65,7 +65,7 @@ const HeroBanner = () => {
 
       {/* Hero1 — people/food photo, theme-dependent asset (fade effect is baked into the PNG itself, not CSS opacity) */}
       <div
-        className="absolute top-[73px] w-[805px] h-[537px] overflow-hidden z-20"
+        className="absolute top-18.25 w-201.25 h-134.25 overflow-hidden z-20"
         style={{
           left: isDark ? '342px' : '323px',
         }}

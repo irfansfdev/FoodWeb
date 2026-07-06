@@ -6,10 +6,10 @@ function CategoryCard({ image, name, restaurantCount, onClick }) {
                  cursor-pointer transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-brand-orange"
     >
       <div className="w-full rounded-xl overflow-hidden shadow-sm bg-white font-poppins">
-        <img src={image} alt={name} className="w-full h-[160px] object-cover" />
+        <img src={image} alt={name} className="w-full h- object-cover" />
         <div className="px-3 py-3">
           <p className="text-black font-bold text-base">{name}</p>
-          <p className="text-[#fc8a06] text-sm">{restaurantCount}</p>
+          <p className="text-brand-orange text-sm">{restaurantCount}</p>
         </div>
       </div>
     </button>

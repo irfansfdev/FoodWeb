@@ -11,7 +11,7 @@ const restaurantsData = [
 
 function RestaurantGrid() {
   return (
-    <section className="px-6 py-8">
+    <section className="px-20 py-8">
       <h2 className="text-2xl font-bold mb-4">Popular Restaurants</h2>
       <div className="grid grid-cols-6 gap-5">
         {restaurantsData.map((r) => (

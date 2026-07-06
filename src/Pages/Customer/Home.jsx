@@ -16,7 +16,7 @@ export default function Home() {
       <DealsGrid />
       <CategoryGrid />
       <RestaurantGrid />
-      <div className="mx-auto max-w-10xl px-5 py-8 space-y-6 sm:px-8 md:px-12.5">
+      <div className="mx-auto max-w-10xl px-5 py-8 space-y-6 sm:px-8 md:px-20.5">
       <DownloadBanner />
       <GetStarted />
       </div>
