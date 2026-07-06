@@ -15,7 +15,7 @@ export default function Home() {
       <HeroBanner />
       <DealsGrid />
       <CategoryGrid />
-      <RestaurantGrid />
+      <RestaurantGrid title="Popular Restaurants" />
       <div className="mx-auto max-w-10xl px-5 py-8 space-y-6 sm:px-8 md:px-20.5">
       <DownloadBanner />
       <GetStarted />
