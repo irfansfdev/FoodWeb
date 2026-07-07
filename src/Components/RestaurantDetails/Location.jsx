@@ -89,7 +89,7 @@ const createNearbyPinIcon = (name, branch) =>
 
 const Location = () => {
   return (
-    <div className="w-full flex flex-col lg:gap-8 py-10 px-4 sm:px-6 lg:px-20">
+    <div className="w-full flex flex-col lg:gap-8 py-20 px-4 sm:px-6 lg:px-20">
 
       {/* ── Info row: Delivery / Contact / Operational Times ── */}
       <div className="w-full rounded-[12px] shadow-[5px_5px_14px_0px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col lg:flex-row bg-[#fbfbfb]">
@@ -150,7 +150,7 @@ const Location = () => {
       </div>
 
       {/* ── Map section — real live map, centered on this restaurant's actual coordinates ── */}
-      <div className="relative w-full min-w-full h-[400px] lg:h-[560px] rounded-[12px] overflow-hidden shadow-[5px_5px_14px_0px_rgba(0,0,0,0.25)]">
+      <div className="relative w-full min-w-full mt-10 h-[400px] lg:h-[560px] rounded-[12px] overflow-hidden shadow-[5px_5px_14px_0px_rgba(0,0,0,0.25)]">
         <MapContainer
           center={[restaurant.mapCard.location.lat - 0.004, restaurant.mapCard.location.lng - 0.014]}
           zoom={15}
@@ -172,7 +172,7 @@ const Location = () => {
 
         {/* Floating info card */}
         <div
-          className="absolute z-[1000] rounded-[12px] p-6 lg:p-8 flex flex-col justify-center text-white"
+          className="absolute z-[1000] h-[420px] ml-20 mt-15 rounded-[12px] p-6 lg:p-8 flex flex-col justify-center text-white"
           style={{
             backgroundColor: 'rgba(3,8,31,0.97)',
             left: '16px',

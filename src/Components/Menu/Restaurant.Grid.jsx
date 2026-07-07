@@ -4,21 +4,32 @@ const restaurantsData = [
   { id: 1, image: "/src/assets/HomeAssets/restaurant1.png", name: "Restaurant 1" },
   { id: 2, image: "/src/assets/HomeAssets/restaurant2.png", name: "Restaurant 2" },
   { id: 3, image: "/src/assets/HomeAssets/restaurant3.png", name: "Restaurant 3" },
-  { id: 4, image: "/src/assets/HomeAssets/restaurant4.png", name: "Restaurant 4" },
-  { id: 5, image: "/src/assets/HomeAssets/restaurant5.png", name: "Restaurant 5" },
-  { id: 6, image: "/src/assets/HomeAssets/restaurant6.png", name: "Restaurant 6" },
+  { id: 4, image: "/src/assets/HomeAssets/restaurant4.png", name: "Restaurant 1" },
+  { id: 5, image: "/src/assets/HomeAssets/restaurant5.png", name: "Restaurant 2" },
+  { id: 6, image: "/src/assets/HomeAssets/restaurant6.png", name: "Restaurant 3" },
 ];
 
-function RestaurantGrid({ title }) {
+function RestaurantGrid({ type }) {
   return (
-    <section className="px-20 py-8">
-      <h2 className="text-2xl font-bold mb-4">{title}</h2>
-
-      <div className="grid grid-cols-6 gap-5">
-        {restaurantsData.map((restaurant) => (
-          <RestaurantCard key={restaurant.id} {...restaurant} />
+    <section className="px-6 lg:px-20 py-8">
+      <h2 className="text-2xl font-bold mb-4">{type} Restaurants</h2>
+      
+      {/* Mobile: sliding row */}
+      <div className="flex lg:hidden gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
+        {restaurantsData.map((r) => (
+          <div key={r.id} className="flex-shrink-0 w-[160px] snap-start">
+            <RestaurantCard {...r} />
+          </div>
         ))}
       </div>
+
+      {/* Desktop: unchanged grid */}
+      <div className="hidden lg:grid grid-cols-6 gap-5">
+        {restaurantsData.map((r) => (
+          <RestaurantCard key={r.id} {...r} />
+        ))}
+      </div>
+
     </section>
   );
 }

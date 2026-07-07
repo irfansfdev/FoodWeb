@@ -18,7 +18,7 @@ function PromoCard({
 }) {
   return (
     <div
-      className="relative flex h-70 w-full flex-col justify-between overflow-hidden rounded-2xl bg-cover bg-center sm:h-75"
+      className="relative flex h-70 w-full flex-col justify-between overflow-hidden rounded-2xl mt-5 bg-cover bg-center sm:h-75"
       style={{
   backgroundImage: `url(${bgImage})`,
   backgroundPosition: "center 10%",
