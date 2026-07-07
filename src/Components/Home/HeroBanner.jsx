@@ -47,13 +47,13 @@ const HeroBanner = () => {
               className="absolute inset-0 w-full h-full bg-white border border-black/40 rounded-full pl-6 pr-[60px] lg:pr-[190px] text-[14px] lg:text-[15px] text-black placeholder-black/60 font-normal outline-none focus:border-brand-orange transition-colors shadow-sm"
             />
             
-            {/* Mobile Button (Arrow Icon) */}
+            {/* Mobile Button (Arrow Icon) - FIXED */}
             <button
               type="button"
-              className="absolute left-65 w-[50px] h-[50px] flex items-center justify-center bg-brand-orange rounded-full lg:hidden active:scale-95 transition-transform"
+              className="absolute right-1 w-[42px] h-[42px] flex items-center justify-center bg-brand-orange rounded-full lg:hidden active:scale-95 transition-transform"
             >
-              <div className="w-[28px] h-[28px] bg-[#03081F] rounded-full flex items-center justify-center">
-                <ChevronRight size={18} className="text-brand-orange ml-0.5" strokeWidth={3} />
+              <div className="w-[24px] h-[24px] bg-[#03081F] rounded-full flex items-center justify-center">
+                <ChevronRight size={16} className="text-brand-orange ml-0.5" strokeWidth={3} />
               </div>
             </button>
 

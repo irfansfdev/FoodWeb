@@ -26,7 +26,7 @@ const offers = [
 
 function OffersGrid({ onAddOffer, onSelectOffer }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 px-20 py-15">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 px-6 lg:px-20 py-8">
       {offers.map((offer) => (
         <OfferCard
           key={offer.id}

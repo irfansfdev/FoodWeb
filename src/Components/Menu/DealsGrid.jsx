@@ -21,15 +21,19 @@ function DealsGrid() {
   return (
     <section className="px-6 lg:px-20 py-8">
       <div className="flex items-center">
-        <h2 className="text-xl md:text-2xl font-bold mb-4">
-          Up to -40% 🎊 Order.uk exclusive deals
+        <h2 className="text-[13px] md:text-[32px] font-bold mb-4">
+          {/* Mobile-only text */}
+          <span className="md:hidden">Up to -40% Discount Offers 🎊</span>
+          
+          {/* Desktop-only text */}
+          <span className="hidden md:inline">Up to -40% 🎊 Order.uk exclusive deals</span>
         </h2>
 
         {/* Mobile: dropdown */}
         <select
             value={activeTab}
             onChange={(e) => setActiveTab(Number(e.target.value))}
-            className="lg:hidden ml-auto mb-4 border border-orange-500 rounded-full px-4 py-2 text-sm font-medium text-black bg-white"
+            className="lg:hidden ml-auto mb-4 border border-orange-500 rounded-full text-center px-0 py-2 text-sm font-medium text-black bg-white"
           >
             {tabs.map((tab, index) => (
               <option key={tab} value={index}>{tab}</option>

@@ -46,7 +46,7 @@ export default function Restaurant() {
       />
       <OffersGrid />
 
-      <div className="mx-auto space-y-2 px-20">
+      <div className="mx-auto space-y-2 px-8 lg:px-20 py-8">
         <div className="space-y-14"></div>
 
         {/* Restaurant Categories With Items */}
@@ -77,17 +77,9 @@ export default function Restaurant() {
         </div>
       </div>
       <Location />
-      <div className="relative">
         <Reviews />
 
-        <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 z-10">
-          <img
-            src={overallRating}
-            alt="Overall Rating"
-            className="w-[153px] h-[178px] rounded-[12px] bg-white border border-gray-200 shadow-sm" // Dimensions matching {2BA58F3A-382A-4CF4-B27F-C0939466E606}.png exactly
-          />
-        </div>
-      </div>
+        
 
       <div className="pt-22">
         <RestaurantGrid title="Similar Restaurants" />

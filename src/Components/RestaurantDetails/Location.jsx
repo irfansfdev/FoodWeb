@@ -48,9 +48,7 @@ const restaurant = {
   },
 };
 
-// Custom marker matching Figma exactly: white label pill + orange circular pin badge.
-// Built as a divIcon (real HTML/CSS) instead of a plain image, since Figma's marker
-// is actually two elements combined, not a single icon graphic.
+// Custom marker matching Figma exactly
 const createNearbyPinIcon = (name, branch) =>
   L.divIcon({
     className: '',
@@ -89,13 +87,13 @@ const createNearbyPinIcon = (name, branch) =>
 
 const Location = () => {
   return (
-    <div className="w-full flex flex-col lg:gap-8 py-20 px-4 sm:px-6 lg:px-20">
+    <div className="w-full flex flex-col lg:gap-8 py-10 md:py-20 px-4 sm:px-6 lg:px-20 max-w-[1528px] mx-auto">
 
       {/* ── Info row: Delivery / Contact / Operational Times ── */}
       <div className="w-full rounded-[12px] shadow-[5px_5px_14px_0px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col lg:flex-row bg-[#fbfbfb]">
 
         {/* Delivery information */}
-        <div className="flex-1 p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-black/10">
+        <div className="flex-1 p-6 md:p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-black/10">
           <div className="flex items-center gap-3 mb-4">
             <img src={deliveryIcon} alt="" className="w-[32px] h-[32px] lg:w-[45px] lg:h-[45px] object-contain" />
             <h3 className="text-[18px] lg:text-[22px] font-bold text-[#03081F]">Delivery information</h3>
@@ -113,7 +111,7 @@ const Location = () => {
         </div>
 
         {/* Contact information */}
-        <div className="flex-1 p-6 lg:p-10 border-b lg:border-b-0 lg:border-r border-black/10">
+        <div className="flex-1 p-6 md:p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-black/10">
           <div className="flex items-center gap-3 mb-4">
             <img src={contactIcon} alt="" className="w-[32px] h-[32px] lg:w-[45px] lg:h-[45px] object-contain" />
             <h3 className="text-[18px] lg:text-[22px] font-bold text-[#03081F]">Contact information</h3>
@@ -134,7 +132,7 @@ const Location = () => {
         </div>
 
         {/* Operational Times — dark panel */}
-        <div className="lg:w-[416px] bg-[#03081F] text-white p-6 lg:p-10 m-4 rounded-[12px] lg:m-0 lg:rounded-none lg:rounded-r-[12px]">
+        <div className="lg:w-[416px] bg-[#03081F] text-white p-6 md:p-8 lg:p-10 m-4 rounded-[12px] lg:m-0 lg:rounded-none lg:rounded-r-[12px]">
           <div className="flex items-center gap-3 mb-4">
             <img src={clockIcon} alt="" className="w-[32px] h-[32px] lg:w-[45px] lg:h-[45px] object-contain" />
             <h3 className="text-[18px] lg:text-[22px] font-bold">Operational Times</h3>
@@ -149,38 +147,32 @@ const Location = () => {
         </div>
       </div>
 
-      {/* ── Map section — real live map, centered on this restaurant's actual coordinates ── */}
-      <div className="relative w-full min-w-full mt-10 h-[400px] lg:h-[560px] rounded-[12px] overflow-hidden shadow-[5px_5px_14px_0px_rgba(0,0,0,0.25)]">
-        <MapContainer
-          center={[restaurant.mapCard.location.lat - 0.004, restaurant.mapCard.location.lng - 0.014]}
-          zoom={15}
-          scrollWheelZoom={false}
-          style={{ width: '100%', height: '100%', opacity: 0.9 }}
-        >
-          <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {/* Nearby branch marker — real position on the actual map, not a fixed pixel mockup */}
-          <Marker
-            position={[restaurant.mapCard.location.lat, restaurant.mapCard.location.lng]}
-            icon={createNearbyPinIcon(restaurant.mapCard.name, restaurant.mapCard.branch)}
+      {/* ── Map section ── */}
+      <div className="relative w-full mt-10 rounded-[12px] shadow-[5px_5px_14px_0px_rgba(0,0,0,0.25)] flex flex-col lg:block overflow-hidden bg-[#03081F] lg:bg-transparent">
+        
+        {/* Map Container */}
+        <div className="relative z-0 h-[350px] md:h-[450px] lg:h-[560px] w-full">
+          <MapContainer
+            center={[restaurant.mapCard.location.lat - 0.004, restaurant.mapCard.location.lng - 0.014]}
+            zoom={15}
+            scrollWheelZoom={false}
+            style={{ width: '100%', height: '100%', opacity: 0.9 }}
           >
-            <Popup>{restaurant.mapCard.name} {restaurant.mapCard.branch}</Popup>
-          </Marker>
-        </MapContainer>
+            <TileLayer
+              attribution='&copy; OpenStreetMap contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker
+              position={[restaurant.mapCard.location.lat, restaurant.mapCard.location.lng]}
+              icon={createNearbyPinIcon(restaurant.mapCard.name, restaurant.mapCard.branch)}
+            >
+              <Popup>{restaurant.mapCard.name} {restaurant.mapCard.branch}</Popup>
+            </Marker>
+          </MapContainer>
+        </div>
 
-        {/* Floating info card */}
-        <div
-          className="absolute z-[1000] h-[420px] ml-20 mt-15 rounded-[12px] p-6 lg:p-8 flex flex-col justify-center text-white"
-          style={{
-            backgroundColor: 'rgba(3,8,31,0.97)',
-            left: '16px',
-            top: '16px',
-            width: 'calc(100% - 32px)',
-            maxWidth: '361px',
-          }}
-        >
+        {/* Info card - Stacks below on mobile, floats on desktop */}
+        <div className="relative lg:absolute z-[1000] lg:top-20 lg:left-15 w-full lg:w-[360px] h-auto lg:h-[420px] bg-[rgba(3,8,31,0.97)] lg:rounded-[12px] p-6 lg:p-8 flex flex-col justify-center text-white lg:shadow-2xl">
           <h3 className="text-[20px] lg:text-[24px] font-bold">
             {restaurant.mapCard.name}
             <br />
