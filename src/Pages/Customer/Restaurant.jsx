@@ -9,7 +9,6 @@ import Card from "../../Components/RestaurantDetails/Cards";
 import { data } from "../../Components/Utils/dummyData";
 import Location from "../../Components/RestaurantDetails/Location";
 import Reviews from "../../Components/RestaurantDetails/Reviews";
-import overallRating from "../../assets/OverallRating.png";
 import RestaurantGrid from "../../Components/Menu/Restaurant.Grid";
 
 export default function Restaurant() {
@@ -82,7 +81,7 @@ export default function Restaurant() {
         
 
       <div className="pt-22">
-        <RestaurantGrid title="Similar Restaurants" />
+        <RestaurantGrid type="Similar" />
       </div>
       <Footer />
     </>

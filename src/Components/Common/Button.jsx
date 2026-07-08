@@ -1,5 +1,3 @@
-import React from "react";
-
 /**
  * Common CTA button used across the app (e.g. "Get Started").
  *

@@ -13,9 +13,12 @@ export default function Home() {
     <>
       <Navbar />
       <HeroBanner />
+
+      <div id="menu">
       <DealsGrid />
       <CategoryGrid />
-      <RestaurantGrid title="Popular Restaurants" />
+      <RestaurantGrid type="Popular" />
+      </div>
       <div className="mx-auto max-w-10xl px-5 py-8 space-y-6 sm:px-8 md:px-20.5">
       <DownloadBanner />
       <GetStarted />

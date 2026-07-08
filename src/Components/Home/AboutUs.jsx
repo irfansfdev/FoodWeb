@@ -131,7 +131,7 @@ export default function AboutUs() {
                         className="h-14 w-14 sm:h-16 sm:w-16 object-contain mb-4"
                       />
 
-                      <p className="text-xs text-[gray-700] font-medium leading-snug">
+                      <p className="text-sm text-[gray-700]">
                         {step.description}
                       </p>
                     </article>

@@ -5,7 +5,7 @@ function DealCard({ image, name, restaurantLabel, discount, compact = false }) {
       <div className="flex-shrink-0 w-[150px] font-poppins snap-start">
         <div className="relative w-[150px] h-[150px] rounded-xl overflow-hidden">
           <img src={image} alt={name} className="w-full h-full object-cover" />
-          <div className="absolute top-0 left-0 bg-[#03081f] px-2 py-1 rounded-br-xl">
+          <div className="absolute top-0 left-0 bg-brand-black px-2 py-1 rounded-br-xl">
             <span className="text-white font-bold text-xs">{discount}</span>
           </div>
         </div>
