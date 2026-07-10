@@ -1,14 +1,15 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { HashLink } from "react-router-hash-link";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../Redux/Slices/AuthSlice"; 
 import logo from "../../assets/HomeAssets/OrderUKLogo.png";
 import locationIcon from "../../assets/HomeAssets/LocationIcon.png";
 import basketIcon from "../../assets/HomeAssets/Full Shopping Basket.png";
 import arrowDownIcon from "../../assets/HomeAssets/Forward Button.png";
-import { Menu } from "lucide-react";
+import { Menu, LogOut, User } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import { useAuthModal } from "../../context/AuthModalContext";
-
 
 const navLinks = [
   { label: "Home", path: "/" },
@@ -21,10 +22,18 @@ const navLinks = [
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { openLogin } = useAuthModal();
+  
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <div>
-      {/* ══════════════════════ DESKTOP (unchanged) ══════════════════════ */}
+      {/* ══════════════════════ DESKTOP ══════════════════════ */}
       <div className="hidden lg:block">
         {/* ── Top promo / utility strip ─────────────────────────── */}
         <div
@@ -59,8 +68,11 @@ const Navbar = () => {
                 </button>
               </div>
 
-              {/* Basket */}
-              <div className="flex items-center bg-brand-green border border-black/10 rounded-br-card text-white font-body h-full w-[378px]">
+              {/* Basket wrapper with redirect added */}
+              <div 
+                onClick={() => navigate('/cart')}
+                className="flex items-center bg-brand-green border border-black/10 rounded-br-card text-white font-body h-full w-[378px] cursor-pointer hover:bg-opacity-95 transition-all select-none"
+              >
                 <div className="flex items-center justify-center px-2 flex-1">
                   <img
                     src={basketIcon}
@@ -83,13 +95,13 @@ const Navbar = () => {
 
                 <div className="h-full w-px bg-white/30" />
 
-                <button className="flex-1 h-full flex items-center justify-center hover:bg-black/10 transition-colors cursor-pointer rounded-br-card">
+                <div className="flex-1 h-full flex items-center justify-center hover:bg-black/10 transition-colors rounded-br-card">
                   <img
                     src={arrowDownIcon}
                     alt="Go to checkout"
                     className="w-[38px] h-[38px] object-contain rotate-90"
                   />
-                </button>
+                </div>
               </div>
             </div>
           </div>
@@ -140,30 +152,42 @@ const Navbar = () => {
             <div className="flex items-center gap-4">
               <ThemeToggle />
 
-              {/* Was: <Link to="/login">. Now opens the AuthModal instead of navigating. */}
-              <button
-                type="button"
-                onClick={openLogin}
-                className="w-[234px] h-[61px] bg-brand-dark text-white rounded-pill flex items-center justify-center gap-3 font-nav text-sm font-semibold hover:opacity-90 transition-opacity"
-              >
-                <div className="w-[30px] h-[30px] bg-brand-orange rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-4 h-4 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
+              {user ? (
+                <div className="w-[234px] h-[61px] bg-brand-dark text-white rounded-pill flex items-center justify-between pl-3 pr-4 font-nav text-[14px] font-semibold shadow-md min-w-0">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="w-[36px] h-[36px] bg-brand-orange rounded-full flex items-center justify-center shrink-0">
+                      <User size={18} className="text-white" strokeWidth={2.5} />
+                    </div>
+                    <span className="truncate text-left pr-1 block">
+                      {user.username || 'User'}
+                    </span>
+                  </div>
+                  <button 
+                    onClick={handleLogout} 
+                    className="text-white/50 hover:text-brand-orange transition-colors shrink-0 ml-1"
+                    title="Logout"
                   >
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z" />
-                  </svg>
+                    <LogOut size={16} />
+                  </button>
                 </div>
-
-                <span>Login/Signup</span>
-              </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openLogin}
+                  className="w-[234px] h-[61px] bg-brand-dark text-white rounded-pill flex items-center justify-center gap-3 font-nav text-sm font-semibold hover:opacity-90 transition-opacity"
+                >
+                  <div className="w-[30px] h-[30px] bg-brand-orange rounded-full flex items-center justify-center">
+                    <User size={16} className="text-white" />
+                  </div>
+                  <span>Login/Signup</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ══════════════════════ MOBILE (Modified Segment Layer) ══════════════════════ */}
+      {/* ══════════════════════ MOBILE ══════════════════════ */}
       <div className="lg:hidden w-full relative">
         {/* Row 1: Logo + Theme Toggle + Hamburger */}
         <div className="flex items-center justify-between px-4 pt-[27px] pb-[18px]">
@@ -178,33 +202,49 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Row 2: Promo/basket bar — Login action opens AuthModal instead of navigating */}
+        {/* Row 2: Promo/basket bar */}
         <div className="w-full h-[77px] flex items-center">
-          {/* Orange segment — Integrated Login trigger matching desktop styles contextually */}
-          <button
-            type="button"
-            onClick={openLogin}
-            className="flex-1 h-full bg-brand-orange flex items-center gap-3 px-5 hover:bg-brand-orange/90 transition-colors"
-          >
-            {/* Inverted layout to place white profile icon wrapper into deep contrast */}
-            <div className="w-[34px] h-[34px] bg-brand-dark rounded-full flex items-center justify-center shrink-0">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="currentColor"
-                viewBox="0 0 24 24"
+          {/* Orange segment */}
+          {user ? (
+            <div className="flex-1 h-full bg-brand-orange flex items-center justify-between px-4 min-w-0">
+              <div className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
+                <div className="w-[34px] h-[34px] bg-brand-dark rounded-full flex items-center justify-center shrink-0">
+                  <User size={16} className="text-white" />
+                </div>
+                <span className="text-[15px] font-bold text-brand-dark truncate pr-1">
+                  {user.username || 'User'}
+                </span>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="text-brand-dark/60 hover:text-brand-dark transition-colors shrink-0 ml-1"
+                title="Logout"
               >
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z" />
-              </svg>
+                <LogOut size={18} />
+              </button>
             </div>
-            <span className="text-[16px] font-bold text-brand-dark select-none whitespace-nowrap">
-              Login/Signup
-            </span>
-          </button>
+          ) : (
+            <button
+              type="button"
+              onClick={openLogin}
+              className="flex-1 h-full bg-brand-orange flex items-center gap-3 px-5 hover:bg-brand-orange/90 transition-colors"
+            >
+              <div className="w-[34px] h-[34px] bg-brand-dark rounded-full flex items-center justify-center shrink-0">
+                <User size={16} className="text-white" />
+              </div>
+              <span className="text-[16px] font-bold text-brand-dark select-none whitespace-nowrap">
+                Login/Signup
+              </span>
+            </button>
+          )}
 
-          {/* Green segment — basket icon + price */}
-          <div className="flex items-center bg-brand-green h-full w-[220px] justify-center gap-2 shrink-0">
+          {/* Mobile Basket with redirect added */}
+          <div 
+            onClick={() => navigate('/cart')}
+            className="flex items-center bg-brand-green h-full w-[180px] sm:w-[220px] justify-center gap-2 shrink-0 cursor-pointer hover:bg-opacity-95 transition-all select-none"
+          >
             <img src={basketIcon} alt="Basket" className="w-[38px] h-[38px] object-contain" />
-            <span className="text-white font-semibold text-[16px]">GBP 79.89</span>
+            <span className="text-white font-semibold text-[15px] sm:text-[16px]">GBP 79.89</span>
           </div>
         </div>
 
@@ -242,17 +282,30 @@ const Navbar = () => {
                 </NavLink>
               )
             )}
-            {/* Was: <Link to="/login">. Now opens the AuthModal instead of navigating. */}
-            <button
-              type="button"
-              onClick={() => {
-                setMenuOpen(false);
-                openLogin();
-              }}
-              className="text-brand-orange font-semibold text-left"
-            >
-              Login/Signup
-            </button>
+            
+            {user ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleLogout();
+                }}
+                className="text-red-500 font-semibold text-left flex items-center gap-2 border-t pt-2 border-black/5"
+              >
+                <LogOut size={18} /> Logout
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  openLogin();
+                }}
+                className="text-brand-orange font-semibold text-left border-t pt-2 border-black/5"
+              >
+                Login/Signup
+              </button>
+            )}
           </div>
         )}
       </div>

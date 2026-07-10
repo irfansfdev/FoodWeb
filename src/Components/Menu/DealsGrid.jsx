@@ -1,54 +1,92 @@
-// components/menu/DealsGrid.jsx
-import { useState } from "react";
-import DealCard from "./dealCard";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import DealCard from "./dealCard"; 
+import { fetchDealsAPI } from "../../api/DealsAPI";
 
 const tabs = [
-  "Vegan",
-  "Sushi",
   "Pizza & Fast Food",
+  "Sushi",
+  "Vegan",
   "Others",
 ];
 
-const deals = [
-  { id: 1, image: "/src/assets/HomeAssets/deal1.png", name: "Deal 1", restaurantLabel: "Restaurant A", discount: "-20%" },
-  { id: 2, image: "/src/assets/HomeAssets/deal2.png", name: "Deal 2", restaurantLabel: "Restaurant B", discount: "-40%" },
-  { id: 3, image: "/src/assets/HomeAssets/deal3.png", name: "Deal 3", restaurantLabel: "Restaurant C", discount: "-17%" },
-  ];
-
 function DealsGrid() {
   const [activeTab, setActiveTab] = useState(0);
+  const [liveDeals, setLiveDeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getDeals = async () => {
+      try {
+        setLoading(true);
+        const responseData = await fetchDealsAPI();
+        
+        if (Array.isArray(responseData)) {
+          setLiveDeals(responseData);
+        } else if (responseData && Array.isArray(responseData.data)) {
+          setLiveDeals(responseData.data);
+        } else {
+          setLiveDeals([]);
+        }
+      } catch (err) {
+        console.error("Failed to load deals:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getDeals();
+  }, []);
+
+  const filteredDeals = liveDeals.filter(deal => {
+    if (activeTab === 0) return true; 
+    
+    const targetTab = tabs[activeTab].toLowerCase();
+    const searchableText = `${deal.name || ''} ${deal.description || ''}`.toLowerCase();
+    
+    if (targetTab === "pizza & fast food") {
+      return searchableText.includes("pizza") || searchableText.includes("fast food") || searchableText.includes("burger");
+    }
+    return searchableText.includes(targetTab);
+  });
+
+  const handleDealClick = (dealId) => {
+    navigate(`/deal/${dealId}`);
+  };
+
+  if (loading) return null;
 
   return (
     <section className="px-6 lg:px-20 py-8">
-      <div className="flex items-center">
-        <h2 className="text-[13px] md:text-[32px] font-bold mb-4">
-          {/* Mobile-only text */}
+      {/* Header & Tabs */}
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-[16px] md:text-[32px] font-bold text-brand-dark dark:text-white">
           <span className="md:hidden">Up to -40% Discount Offers 🎊</span>
-          
-          {/* Desktop-only text */}
           <span className="hidden md:inline">Up to -40% 🎊 Order.uk exclusive deals</span>
         </h2>
 
-        {/* Mobile: dropdown */}
+        {/* Mobile Dropdown */}
         <select
-            value={activeTab}
-            onChange={(e) => setActiveTab(Number(e.target.value))}
-            className="lg:hidden ml-auto mb-4 border border-orange-500 rounded-full text-center px-0 py-2 text-sm font-medium text-black bg-white"
-          >
-            {tabs.map((tab, index) => (
-              <option key={tab} value={index}>{tab}</option>
-            ))}
-          </select>
+          value={activeTab}
+          onChange={(e) => setActiveTab(Number(e.target.value))}
+          className="lg:hidden ml-auto border border-[#fc8a06] rounded-full text-center px-4 py-2 text-sm font-medium text-black bg-white outline-none"
+        >
+          {tabs.map((tab, index) => (
+            <option key={tab} value={index}>{tab}</option>
+          ))}
+        </select>
 
-        <nav className="hidden lg:flex flex-wrap justify-end gap-1 mb-4 ml-auto">
+        {/* Desktop Tabs */}
+        <nav className="hidden lg:flex gap-4 ml-auto">
           {tabs.map((tab, index) => (
             <button
               key={tab}
               onClick={() => setActiveTab(index)}
-              className={`px-4 sm:px-6 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm md:text-base whitespace-nowrap cursor-pointer ${
+              className={`px-5 py-2.5 rounded-full transition-all duration-300 text-[15px] cursor-pointer ${
                 activeTab === index
-                  ? "border border-orange-500 bg-white font-bold text-black"
-                  : "border border-transparent font-medium text-gray-700 hover:bg-black/5 hover:text-black"
+                  ? "border border-[#fc8a06] bg-white font-bold text-black"
+                  : "border border-transparent font-medium text-gray-500 hover:text-black"
               }`}
             >
               {tab}
@@ -57,19 +95,37 @@ function DealsGrid() {
         </nav>
       </div>
 
-      {/* Mobile: horizontal sliding row */}
-      <div className="flex lg:hidden gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
-        {deals.map((deal) => (
-          <DealCard key={deal.id} {...deal} compact />
-        ))}
-      </div>
+      {/* Grid Layout strictly matching the screenshot */}
+      {filteredDeals.length === 0 ? (
+        <div className="text-gray-400 text-sm py-4">
+          No live offers available under this category currently.
+        </div>
+      ) : (
+        <>
+          {/* MOBILE: Sliding Row */}
+          <div className="flex lg:hidden gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide">
+            {filteredDeals.slice(0, 3).map((deal) => (
+              <div key={deal.id || deal._id} className="w-[280px] flex-shrink-0 snap-start">
+                <DealCard 
+                  {...deal} 
+                  onClick={() => handleDealClick(deal.id || deal._id)} 
+                />
+              </div>
+            ))}
+          </div>
 
-      {/* Desktop: 3-column grid */}
-      <div className="hidden lg:grid grid-cols-3 gap-5">
-        {deals.map((deal) => (
-          <DealCard key={deal.id} {...deal} />
-        ))}
-      </div>
+          {/* DESKTOP: 3-Column Grid */}
+          <div className="hidden lg:grid grid-cols-3 gap-6">
+            {filteredDeals.slice(0, 3).map((deal) => (
+              <DealCard 
+                key={deal.id || deal._id} 
+                {...deal} 
+                onClick={() => handleDealClick(deal.id || deal._id)} 
+              />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }

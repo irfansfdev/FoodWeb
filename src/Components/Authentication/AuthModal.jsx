@@ -1,14 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useAuthModal } from '../../context/AuthModalContext';
+import { useDispatch } from 'react-redux';
+import { clearError } from '../../Redux/Slices/AuthSlice';
 import Login from '../../Pages/Customer/Login';
 import Signup from '../../Pages/Customer/Signup';
 
 const AuthModal = () => {
   const { isOpen, mode, setMode, close } = useAuthModal();
   const cardRef = useRef(null);
+  const dispatch = useDispatch();
 
-  // Close on Escape key
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -18,7 +20,6 @@ const AuthModal = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, close]);
 
-  // Prevent background scroll while modal is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -32,6 +33,11 @@ const AuthModal = () => {
     }
   };
 
+  const handleModeSwitch = (newMode) => {
+    dispatch(clearError()); 
+    setMode(newMode);
+  };
+
   return (
     <div
       className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 px-4 py-8 overflow-y-auto"
@@ -41,7 +47,6 @@ const AuthModal = () => {
         ref={cardRef}
         className="relative w-full max-w-[480px] bg-[#fbfbfb] dark:bg-[#0a0f2e] rounded-[12px] shadow-2xl p-8 lg:p-10 my-auto"
       >
-        {/* Close button */}
         <button
           onClick={close}
           aria-label="Close"
@@ -50,15 +55,18 @@ const AuthModal = () => {
           <X size={18} className="text-brand-dark dark:text-white" />
         </button>
 
-        {mode === 'login' ? <Login embedded /> : <Signup embedded />}
+        {mode === 'login' ? (
+          <Login embedded onSuccess={close} />
+        ) : (
+          <Signup embedded onSuccess={close} />
+        )}
 
-        {/* Mode toggle */}
         <p className="text-[14px] text-center text-black/70 dark:text-white/70 mt-6">
           {mode === 'login' ? (
             <>
               Don't have an account?{' '}
               <button
-                onClick={() => setMode('signup')}
+                onClick={() => handleModeSwitch('signup')}
                 className="text-[#fc8a06] font-semibold hover:underline"
               >
                 Sign up
@@ -68,7 +76,7 @@ const AuthModal = () => {
             <>
               Already have an account?{' '}
               <button
-                onClick={() => setMode('login')}
+                onClick={() => handleModeSwitch('login')}
                 className="text-[#fc8a06] font-semibold hover:underline"
               >
                 Log in
