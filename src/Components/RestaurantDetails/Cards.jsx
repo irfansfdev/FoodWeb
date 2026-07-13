@@ -1,39 +1,53 @@
 import plus from "../../assets/plus.png";
 
-const Card = ({ data, onBtnClick }) => {
-  return (
-    <article className="overflow-hidden rounded-xl p-5 bg-white shadow-[5px_5px_34px_0px_rgba(0,0,0,0.12)]">
-      <div className="flex ">
-        {/* Left */}
+const BASE_URL = "http://127.0.0.1:8000"; // Your Django backend URL
 
-        <div className="flex flex-1 flex-col justify-between">
+const Card = ({ data, onBtnClick }) => {
+  const itemName = data.name || "Menu Item";
+  const itemPrice = data.price ? `$${data.price}` : "Price Unavailable";
+  
+  // Fix: If the image URL is relative (e.g., starts with /media/), prepend the Django base URL
+  let itemImage = "/placeholder-food.jpg"; 
+  if (data.image) {
+    itemImage = data.image.startsWith("http") ? data.image : `${BASE_URL}${data.image}`;
+  }
+
+  return (
+    <article className="overflow-hidden rounded-xl p-5 bg-white shadow-[5px_5px_34px_0px_rgba(0,0,0,0.12)] transition-transform hover:-translate-y-1 hover:shadow-lg">
+      <div className="flex">
+        {/* Left Content Column */}
+        <div className="flex flex-1 flex-col justify-between pr-4">
           <div>
             <h3 className="text-[18px] font-bold leading-6 text-[#03081F] line-clamp-2">
-              {data.title}
+              {itemName}
             </h3>
 
             <p className="mt-4 text-[14px] leading-6 text-[#555] line-clamp-3">
-              {data.description}
+              {data.description || "Freshly prepared with premium ingredients."}
             </p>
           </div>
 
-          <p className="text-[18px] font-bold text-[#03081F]">{data.price}</p>
+          <p className="text-[18px] font-bold text-[#03081F] mt-4">
+            {itemPrice}
+          </p>
         </div>
 
-        {/* Right */}
-
+        {/* Right Image/Action Column */}
         <div className="relative shrink-0">
           <img
-            src={data.image}
-            alt={data.title}
-            className="h-40 w-36 rounded-xl object-cover"
+            src={itemImage}
+            alt={itemName}
+            className="h-40 w-36 rounded-xl object-cover border border-gray-100 bg-gray-50"
           />
 
-          {/* Add Button */}
-
-          <div className="absolute bottom-0 right-0 rounded-tl-4xl opacity-90 rounded-br-lg bg-white/80 px-3  pt-5 backdrop-blur-sm">
-            <button onClick={onBtnClick}>
-              <img src={plus} alt="" className="h-8 w-8 " />
+          {/* Add To Cart Trigger */}
+          <div className="absolute bottom-0 right-0 rounded-tl-4xl opacity-90 rounded-br-lg bg-white/80 px-3 pt-5 backdrop-blur-sm">
+            <button 
+              onClick={onBtnClick}
+              className="cursor-pointer hover:scale-110 transition-transform active:scale-95"
+              title={`Add ${itemName} to cart`}
+            >
+              <img src={plus} alt="Add button" className="h-8 w-8 object-contain" />
             </button>
           </div>
         </div>

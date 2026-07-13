@@ -5,7 +5,9 @@ import Login from "./Pages/Customer/Login";
 import Signup from "./Pages/Customer/Signup";
 import AuthModal from "./Components/Authentication/AuthModal";
 import OrderTracking from './Pages/Customer/OrderTracking';
-import Cart from "./Pages/Customer/Cart"; // 1. Import your Cart page component here
+import Cart from "../src/Pages/Customer/Cart";
+import DealDetail from "./Pages/Customer/DealDetail"; 
+import CategoryDetail from "./Pages/Customer/CategoryDetail"
 
 function App() {
   return (
@@ -16,8 +18,9 @@ function App() {
         <Route path="/orders/track" element={<OrderTracking />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        
-        {/* 2. Added the new Cart route below */}
+        <Route path="/deals/:id" element={<DealDetail />} />
+        <Route path="/category/:categoryId" element={<CategoryDetail />} />
+
         <Route path="/cart" element={<Cart />} />
       </Routes>
       <AuthModal />

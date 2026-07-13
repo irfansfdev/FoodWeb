@@ -1,8 +1,9 @@
 const BASE_URL = "http://127.0.0.1:8000/order/cart"; 
 
-// Helper to get auth token from localStorage
+// Helper to get auth token from localStorage using your exact key: "authToken"
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("accessToken"); 
+  const token = localStorage.getItem("authToken"); 
+  
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
@@ -15,18 +16,18 @@ export const fetchCartAPI = async () => {
     method: "GET",
     headers: getAuthHeaders() 
   });
-  if (!response.ok) throw new Error("Failed to fetch cart");
+  if (!response.ok) throw new Error(`Failed to fetch cart: ${response.status}`);
   return response.json();
 };
 
-// POST: Add an item to the cart
-export const addToCartAPI = async (itemId, quantity = 1) => {
+// POST: Add an item or deal to the cart using a dynamic payload
+export const addToCartAPI = async (payload) => {
   const response = await fetch(`${BASE_URL}/add/`, {
     method: "POST",
     headers: getAuthHeaders(),
-    body: JSON.stringify({ item_id: itemId, quantity: quantity }),
+    body: JSON.stringify(payload), 
   });
-  if (!response.ok) throw new Error("Failed to add item to cart");
+  if (!response.ok) throw new Error(`Failed to add item to cart: ${response.status}`);
   return response.json();
 };
 
@@ -36,6 +37,6 @@ export const deleteCartItemAPI = async (itemId) => {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
-  if (!response.ok) throw new Error("Failed to delete item from cart");
+  if (!response.ok) throw new Error(`Failed to delete item from cart: ${response.status}`);
   return response.json();
 };

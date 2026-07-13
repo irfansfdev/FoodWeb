@@ -1,74 +1,158 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
+import Button from "../common/Button";
 
-export default function Checkout({ cartItems, onIncrease, onDecrease }) {
-  const navigate = useNavigate();
+export default function Checkout({
+  confirm,
+  cartItems,
+  onIncrease,
+  onDecrease,
+  onRemove, 
+}) {
+  const navigate = useNavigate(); 
 
-  // Calculate order metrics helper dynamically
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity || 0), 0);
+  const subTotal = cartItems.reduce((total, item) => {
+    return total + item.price * item.quantity;
+  }, 0);
 
+  const deliveryFee = 2;
+  const discount = subTotal > 50 ? 10 : 0;
+  const total = subTotal + deliveryFee - discount;
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="mx-auto flex min-h-[70vh] flex-col items-center justify-center">
+        <h1 className="text-4xl font-bold">Your Cart is Empty 🛒</h1>
+
+        <p className="mt-3 text-gray-500">
+          Add some delicious food to your cart.
+        </p>
+
+        <Button onClick={() => navigate('/restaurants')} className="mt-6 px-6 py-2">
+          Browse Restaurants
+        </Button>
+      </div>
+    );
+  }
+  
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 font-body">
-      {/* Dynamic Back button */}
+    <div className="mx-auto max-w-7xl px-6 py-10">
       <button 
-        onClick={() => navigate(-1)} 
-        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-black cursor-pointer font-medium transition-colors"
+        onClick={() => navigate('/restaurants')} 
+        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-black cursor-pointer"
       >
-        ← Back
+        ← Back to Restaurants
       </button>
 
-      <h1 className="text-3xl font-bold mb-8 text-brand-dark">Your Basket</h1>
+      <h1 className="mb-8 text-4xl font-bold">Order Checkout</h1>
 
-      {cartItems.length === 0 ? (
-        /* Styled Brand New Empty Cart Block */
-        <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 border rounded-2xl p-8">
-          <span className="text-5xl mb-4">🛒</span>
-          <p className="text-xl font-semibold text-gray-500">Your cart is empty!</p>
-          <p className="text-gray-400 text-sm mt-1 max-w-xs">Looks like you haven't added any meals to your basket yet.</p>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 rounded-2xl bg-white shadow-lg">
+          <div className="flex items-center justify-between border-b p-6">
+            <div className="flex items-center gap-3 font-semibold">
+              <i className="fa-solid fa-cart-shopping"></i>
+              My Cart
+            </div>
+          </div>
           
-          <button 
-            onClick={() => navigate('/restaurants')} 
-            className="mt-6 rounded-full bg-[#fc8a06] px-8 py-3 font-semibold text-white transition-all hover:bg-opacity-90 shadow-md cursor-pointer hover:scale-[1.02]"
-          >
-            Browse Restaurants
-          </button>
-        </div>
-      ) : (
-        /* Real layout items list display container logic */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 border rounded-xl bg-white shadow-sm">
-                <div>
-                  <h3 className="font-semibold text-lg text-brand-dark">{item.name || "Menu Item"}</h3>
-                  <p className="text-gray-500 font-medium">GBP {item.price}</p>
+          {cartItems.map((item) => {
+            return (
+              <div
+                key={item.id}
+                className="flex items-center justify-between border-b p-6"
+              >
+                <div className="flex items-center gap-5">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="h-24 w-32 rounded-lg object-cover"
+                  />
+
+                  <div className="max-w-md">
+                    <h3 className="text-lg font-bold">{item.title}</h3>
+
+                    <p className="mt-2 text-sm text-gray-500">
+                      {item.description}
+                    </p>
+
+                    <p className="mt-3 text-sm font-semibold">
+                      Extra: Bacon, Cheddar Cheese
+                    </p>
+
+                    <p className="text-sm text-gray-500">Without cutlery</p>
+                  </div>
                 </div>
-                
-                <div className="flex items-center gap-4 border rounded-full px-3 py-1 bg-gray-50">
-                  <button onClick={() => onDecrease(item.id)} className="font-bold text-gray-600 hover:text-black cursor-pointer text-lg px-1">-</button>
-                  <span className="font-semibold w-4 text-center">{item.quantity}</span>
-                  <button onClick={() => onIncrease(item.id)} className="font-bold text-gray-600 hover:text-black cursor-pointer text-lg px-1">+</button>
+
+                <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-4 rounded-full border px-4 py-2">
+                    <button
+                      onClick={() => onDecrease(item.id)}
+                      className="text-xl font-bold cursor-pointer"
+                    >
+                      -
+                    </button>
+
+                    <span className="font-semibold">{item.quantity}</span>
+
+                    <button
+                      onClick={() => onIncrease(item.id)}
+                      className="text-xl font-bold cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2">
+                    <h4 className="font-bold whitespace-nowrap">£{item.price}</h4>
+                    <button 
+                      onClick={() => onRemove(item.id)} 
+                      className="text-sm font-semibold text-red-500 hover:text-red-700 cursor-pointer hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Pricing breakdown sidebar summary block */}
-          <div className="border rounded-xl p-6 bg-white shadow-sm h-fit">
-            <h2 className="text-xl font-bold mb-4 border-b pb-2">Order Summary</h2>
-            <div className="flex justify-between font-medium text-gray-600 mb-2">
-              <span>Subtotal</span>
-              <span>GBP {subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between font-bold text-lg text-brand-dark border-t pt-2 mt-4">
-              <span>Total</span>
-              <span>GBP {subtotal.toFixed(2)}</span>
-            </div>
-            <button className="w-full mt-6 bg-[#fc8a06] text-white py-3 rounded-xl font-bold shadow-md hover:bg-opacity-90 transition-opacity cursor-pointer">
-              Proceed to Checkout
-            </button>
-          </div>
+            );
+          })}
         </div>
-      )}
+
+        {cartItems.length > 0 && (
+          <div className="h-fit rounded-2xl bg-white p-6 shadow-lg">
+            <h2 className="mb-6 text-3xl font-bold">Total Payment</h2>
+
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>£{subTotal.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Delivery Fee</span>
+                <span>£{deliveryFee.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Discount</span>
+                <span>-£{discount.toFixed(2)}</span>
+              </div>
+
+              <hr />
+
+              <div className="flex justify-between text-xl font-bold">
+                <span>Total</span>
+                <span>£{total.toFixed(2)}</span>
+              </div>
+
+              <Button
+                onClick={confirm}
+                className="mt-6 w-full rounded-lg py-3 font-semibold"
+              >
+                Place Order
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

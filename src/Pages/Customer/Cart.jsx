@@ -1,64 +1,54 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Checkout from "../../Components/Cart/Checkout";
-import { fetchCartAPI, deleteCartItemAPI } from "../../api/cartAPI";
+import {
+  fetchCartAsync,
+  deleteCartItemAsync,
+  increaseQuantity,
+  decreaseQuantity,
+} from "../../Redux/Slices/cartSlice";
 
 export default function Cart() {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  
+  // Pull state directly from Redux
+  const { items: cartItems, status } = useSelector((state) => state.cart);
 
-  // Load cart from Backend Database on mount
   useEffect(() => {
-    const loadCart = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchCartAPI();
-        // Adjust syntax based on if backend yields raw arrays or wrappers like { items: [] }
-        const items = data.items || data || []; 
-        setCartItems(items); 
-      } catch (error) {
-        console.error("Error loading cart from DB:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadCart();
-  }, []);
+    // Only fetch if idle to prevent infinite loops
+    if (status === "idle") {
+      dispatch(fetchCartAsync());
+    }
+  }, [status, dispatch]);
 
-  const handleIncrease = async (id) => {
-    // Local visual optimistic state update (Sync backend as required)
-    setCartItems((prev) =>
-      prev.map((cart) =>
-        cart.id === id ? { ...cart, quantity: cart.quantity + 1 } : cart
-      )
-    );
+  const handleIncrease = (id) => {
+    dispatch(increaseQuantity(id));
   };
 
-  const handleDecrease = async (id) => {
+  const handleDecrease = (id) => {
     const item = cartItems.find((cart) => cart.id === id);
-
     if (item.quantity > 1) {
-      setCartItems((prev) =>
-        prev.map((cart) =>
-          cart.id === id ? { ...cart, quantity: cart.quantity - 1 } : cart
-        )
-      );
+      dispatch(decreaseQuantity(id));
     } else {
-      const isConfirmed = window.confirm("Are you sure you want to remove this item?");
-      if (!isConfirmed) return;
-
-      try {
-        // Request delete request from your Django endpoint
-        await deleteCartItemAPI(id);
-        // Clear visually from UI upon success
-        setCartItems((prev) => prev.filter((cart) => cart.id !== id));
-      } catch (error) {
-        console.error("Failed to delete item from database:", error);
-        alert("Could not remove item. Please try again.");
-      }
+      handleRemove(id);
     }
   };
 
-  if (loading) {
+  const handleRemove = (id) => {
+    const isConfirmed = window.confirm("Are you sure you want to remove this item?");
+    if (!isConfirmed) return;
+
+    dispatch(deleteCartItemAsync(id)).unwrap().catch((error) => {
+      console.error("Failed to delete item:", error);
+      alert("Could not remove item. Please try again.");
+    });
+  };
+
+  const handleConfirm = () => {
+    alert("Proceeding to checkout...");
+  };
+
+  if (status === "loading") {
     return (
       <div className="min-h-[70vh] flex items-center justify-center text-xl font-medium text-gray-600">
         Loading your cart...
@@ -71,6 +61,8 @@ export default function Cart() {
       cartItems={cartItems}
       onIncrease={handleIncrease}
       onDecrease={handleDecrease}
+      onRemove={handleRemove} 
+      confirm={handleConfirm}
     />
   );
 }
