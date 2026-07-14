@@ -1,36 +1,101 @@
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useTheme } from "../../Context/ThemeContext";
-
-const categories = [
-  "Offers", "Burgers", "Fries", "Snacks", "Salads",
-  "Cold drinks", "Happy Meal®", "Desserts", "Hot drinks", "Sauces", "Orbit®"
-];
+import { getMenuItems } from "/src/api/restaurantAPI"; 
 
 function OfferCategoryTabs({ activeCategory, onSelect }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  
+  const { id } = useParams();
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAndBuildCategories = async () => {
+      try {
+        setLoading(true);
+
+        // 1. If there's no ID, do not load any categories
+        if (!id) {
+          setCategories([]);
+          setLoading(false);
+          return;
+        }
+
+        const menuItems = await getMenuItems();
+        
+        if (!menuItems || menuItems.length === 0) {
+          setCategories([]);
+          return;
+        }
+
+        // 2. Strictly filter items for THIS specific restaurant ID
+        const restaurantItems = menuItems.filter(
+          (item) => item.restaurant && String(item.restaurant.id) === String(id)
+        );
+
+        // 3. Get only items with valid category data from this specific restaurant
+        const validItems = restaurantItems.filter((item) => item.category && item.category.name);
+
+        // 4. KEEP "All" TAB LOGIC: Start with "All" tab
+        const uniqueCategoryNames = ["All"]; 
+        
+        validItems.forEach((item) => {
+          const catName = item.category.name;
+          if (catName && !uniqueCategoryNames.includes(catName)) {
+            uniqueCategoryNames.push(catName);
+          }
+        });
+
+        setCategories(uniqueCategoryNames);
+
+        // 5. Auto-select the first category ("All") if the active one isn't in the list
+        if (uniqueCategoryNames.length > 0 && !uniqueCategoryNames.includes(activeCategory)) {
+          onSelect(uniqueCategoryNames[0]);
+        }
+
+      } catch (error) {
+        console.error("Error building categories from menu items:", error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAndBuildCategories();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className={`w-full py-6 text-center font-poppins text-sm ${isDark ? "text-white" : "text-gray-500"}`}>
+        Loading categories...
+      </div>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className={`w-full py-6 text-center font-poppins text-sm ${isDark ? "text-white" : "text-gray-500"}`}>
+        No categories available.
+      </div>
+    );
+  }
 
   return (
     <div
       className={`w-full overflow-x-auto font-poppins px-4 py-4 md:px-6 ${
         isDark ? "bg-brand-orange" : "bg-[#f3f3f3]"
       }`}
-      // Inline styles to hide the scrollbar for a cleaner UI
-      style={{
-        scrollbarWidth: "none", // Firefox
-        msOverflowStyle: "none", // IE/Edge
-      }}
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
     >
-      {/* Webkit scrollbar hiding via style tag for Chrome/Safari */}
       <style>{`
         div::-webkit-scrollbar {
           display: none;
         }
       `}</style>
 
-      {/* min-w-max prevents the flex container from crushing the items on mobile.
-        lg:justify-between allows them to spread evenly on large screens. 
-      */}
-      <div className="flex items-center justify-start lg:justify-between min-w-max gap-2 md:gap-4">
+      <div className="flex items-center justify-start min-w-max gap-2 md:gap-4">
         {categories.map((cat) => (
           <button
             key={cat}

@@ -1,18 +1,17 @@
 import RestaurantCard from "./RestaurantCard";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getRestaurants } from "/src/api/restaurantAPI";
+import { useNavigate } from "react-router-dom"; 
 
 function RestaurantGrid({ type }) {
   const [restaurants, setRestaurants] = useState([]);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
-
     const fetchRestaurants = async () => {
         try {
             const data = await getRestaurants();
-            // console.log(Array.isArray(data)); // true or false
-            console.log(data);
+            console.log("Fetched restaurants data:", data); // Check your console to see the data structure!
             setRestaurants(data);
         } catch (error) {
             console.error(error);
@@ -28,18 +27,49 @@ function RestaurantGrid({ type }) {
       
       {/* Mobile: sliding row */}
       <div className="flex lg:hidden gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
-        {restaurants.map((r) => (
-          <div key={r.id} className="flex-shrink-0 w-[160px] snap-start">
-            <RestaurantCard {...r} image={`http://127.0.0.1:8000${r.image}`} />
-          </div>
-        ))}
+        {restaurants.map((r) => {
+          // This safely finds the ID no matter what your backend named it
+          const restaurantId = r.id || r._id || r.restaurant_id; 
+          
+          return (
+            <div key={restaurantId} className="flex-shrink-0 w-[160px] snap-start">
+              <RestaurantCard 
+                {...r} 
+                image={`http://127.0.0.1:8000${r.image}`} 
+                onClick={() => {
+                  if (restaurantId) {
+                    navigate(`/restaurant/${restaurantId}`);
+                  } else {
+                    console.error("Could not find an ID for this restaurant:", r);
+                  }
+                }} 
+              />
+            </div>
+          );
+        })}
       </div>
 
       {/* Desktop: unchanged grid */}
       <div className="hidden lg:grid grid-cols-6 gap-5">
-        {restaurants.map((r) => (
-          <RestaurantCard key={r.id} {...r} image={`http://127.0.0.1:8000${r.image}`} />
-        ))}
+        {restaurants.map((r) => {
+          // This safely finds the ID no matter what your backend named it
+          const restaurantId = r.id || r._id || r.restaurant_id; 
+          
+          return (
+            <RestaurantCard 
+              key={restaurantId} 
+              {...r} 
+              image={`http://127.0.0.1:8000${r.image}`} 
+              onClick={() => {
+                if (restaurantId) {
+                  navigate(`/restaurant/${restaurantId}`);
+                } else {
+                  console.error("Could not find an ID for this restaurant:", r);
+                }
+              }} 
+            />
+          );
+        })}
       </div>
 
     </section>

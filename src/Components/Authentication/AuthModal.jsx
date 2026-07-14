@@ -1,15 +1,25 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { useAuthModal } from '../../context/AuthModalContext';
-import { useDispatch } from 'react-redux';
-import { clearError } from '../../Redux/Slices/AuthSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearError, closeAuthModal } from '../../Redux/Slices/AuthSlice'; // Ensure this path matches your setup
 import Login from '../../Pages/Customer/Login';
 import Signup from '../../Pages/Customer/Signup';
 
 const AuthModal = () => {
-  const { isOpen, mode, setMode, close } = useAuthModal();
-  const cardRef = useRef(null);
+  // 1. Read visibility state from Redux
+  const isOpen = useSelector((state) => state.auth.isAuthModalOpen);
   const dispatch = useDispatch();
+  
+  // 2. Manage the login/signup toggle locally 
+  const [mode, setMode] = useState('login'); 
+  const cardRef = useRef(null);
+
+  // 3. Helper to close the modal via Redux
+  const close = () => {
+    dispatch(closeAuthModal());
+    // Optional: Reset to 'login' a moment after closing so it's ready for next time
+    setTimeout(() => setMode('login'), 300); 
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -18,7 +28,7 @@ const AuthModal = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, close]);
+  }, [isOpen]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';

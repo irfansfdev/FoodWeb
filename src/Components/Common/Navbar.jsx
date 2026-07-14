@@ -1,31 +1,50 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HashLink } from "react-router-hash-link";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../Redux/Slices/AuthSlice"; 
+import { logout, openAuthModal } from "../../Redux/Slices/AuthSlice"; 
 import logo from "../../assets/HomeAssets/OrderUKLogo.png";
 import locationIcon from "../../assets/HomeAssets/LocationIcon.png";
 import basketIcon from "../../assets/HomeAssets/Full Shopping Basket.png";
 import arrowDownIcon from "../../assets/HomeAssets/Forward Button.png";
-import { Menu, LogOut, User } from "lucide-react";
+import { Menu, LogOut, User, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
-import { useAuthModal } from "../../context/AuthModalContext";
+
+// Make sure this path matches exactly where your getRestaurants API is located!
+import { getRestaurants } from "../../api/restaurantAPI"; 
 
 const navLinks = [
   { label: "Home", path: "/" },
   { label: "Browse Menu", path: "/#menu" },
   { label: "Special Offers", path: "/offers" },
-  { label: "Restaurants", path: "/restaurants" },
+  { label: "Restaurants", path: "#" }, // Path doesn't matter here anymore, it's a dropdown
   { label: "Order Tracking", path: "/orders/track" },
 ];
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { openLogin } = useAuthModal();
+  
+  // NEW: State for restaurants and dropdown toggles
+  const [restaurants, setRestaurants] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+
+  // NEW: Fetch restaurants when Navbar loads
+  useEffect(() => {
+    const fetchRes = async () => {
+      try {
+        const data = await getRestaurants();
+        setRestaurants(data || []);
+      } catch (error) {
+        console.error("Failed to fetch restaurants for Navbar", error);
+      }
+    };
+    fetchRes();
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -122,8 +141,46 @@ const Navbar = () => {
             </Link>
 
             <nav className="flex items-center gap-8 font-nav text-sm font-semibold">
-              {navLinks.map((link) =>
-                link.label === "Browse Menu" ? (
+              {navLinks.map((link) => {
+                // NEW: Desktop Dropdown Intercept
+                if (link.label === "Restaurants") {
+                  return (
+                    <div
+                      key={link.label}
+                      className="relative"
+                      onMouseEnter={() => setShowDropdown(true)}
+                      onMouseLeave={() => setShowDropdown(false)}
+                    >
+                      <button className="h-[45px] text-brand-dark hover:text-brand-orange flex items-center justify-center gap-1 transition-colors duration-200 outline-none cursor-pointer">
+                        Restaurants <ChevronDown size={16} className={`transition-transform duration-200 ${showDropdown ? "rotate-180" : ""}`}/>
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {showDropdown && (
+                        <div className="absolute top-[45px] left-1/2 -translate-x-1/2 w-[220px] bg-white border border-gray-100 shadow-xl rounded-xl overflow-hidden z-50 py-2">
+                          {restaurants.length > 0 ? (
+                            restaurants.map((res) => (
+                              <Link
+                                key={res.id}
+                                to={`/restaurant/${res.id}`}
+                                className="block px-4 py-2.5 text-brand-dark hover:bg-brand-orange hover:text-white transition-colors text-[14px]"
+                                onClick={() => setShowDropdown(false)}
+                              >
+                                {res.name}
+                              </Link>
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-gray-400 text-sm text-center">
+                              Loading...
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                return link.label === "Browse Menu" ? (
                   <HashLink
                     key={link.label}
                     smooth
@@ -145,8 +202,8 @@ const Navbar = () => {
                   >
                     {link.label}
                   </NavLink>
-                )
-              )}
+                );
+              })}
             </nav>
 
             <div className="flex items-center gap-4">
@@ -173,7 +230,7 @@ const Navbar = () => {
               ) : (
                 <button
                   type="button"
-                  onClick={openLogin}
+                  onClick={() => dispatch(openAuthModal())}
                   className="w-[234px] h-[61px] bg-brand-dark text-white rounded-pill flex items-center justify-center gap-3 font-nav text-sm font-semibold hover:opacity-90 transition-opacity"
                 >
                   <div className="w-[30px] h-[30px] bg-brand-orange rounded-full flex items-center justify-center">
@@ -189,7 +246,6 @@ const Navbar = () => {
 
       {/* ══════════════════════ MOBILE ══════════════════════ */}
       <div className="lg:hidden w-full relative">
-        {/* Row 1: Logo + Theme Toggle + Hamburger */}
         <div className="flex items-center justify-between px-4 pt-[27px] pb-[18px]">
           <Link to="/">
             <img src={logo} alt="Order UK Logo" className="w-[154px] h-[38px] object-contain" />
@@ -202,9 +258,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Row 2: Promo/basket bar */}
         <div className="w-full h-[77px] flex items-center">
-          {/* Orange segment */}
           {user ? (
             <div className="flex-1 h-full bg-brand-orange flex items-center justify-between px-4 min-w-0">
               <div className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
@@ -226,7 +280,7 @@ const Navbar = () => {
           ) : (
             <button
               type="button"
-              onClick={openLogin}
+              onClick={() => dispatch(openAuthModal())}
               className="flex-1 h-full bg-brand-orange flex items-center gap-3 px-5 hover:bg-brand-orange/90 transition-colors"
             >
               <div className="w-[34px] h-[34px] bg-brand-dark rounded-full flex items-center justify-center shrink-0">
@@ -238,7 +292,6 @@ const Navbar = () => {
             </button>
           )}
 
-          {/* Mobile Basket with redirect added */}
           <div 
             onClick={() => navigate('/cart')}
             className="flex items-center bg-brand-green h-full w-[180px] sm:w-[220px] justify-center gap-2 shrink-0 cursor-pointer hover:bg-opacity-95 transition-all select-none"
@@ -248,17 +301,52 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Row 3: Location */}
         <div className="flex items-center gap-2 px-4 pt-[15px] pb-[15px]">
           <img src={locationIcon} alt="Location Pin" className="w-[25px] h-[25px] object-contain shrink-0" />
           <span className="text-[14px] text-black truncate">Lution Street, N4G-00...</span>
         </div>
 
-        {/* Mobile dropdown menu */}
         {menuOpen && (
           <div className="w-full px-4 py-4 flex flex-col gap-4 bg-white border-b border-black/10">
-            {navLinks.map((link) =>
-              link.label === "Browse Menu" ? (
+            {navLinks.map((link) => {
+              // NEW: Mobile Dropdown Intercept
+              if (link.label === "Restaurants") {
+                return (
+                  <div key={link.label} className="flex flex-col">
+                    <button
+                      onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
+                      className="text-brand-dark font-medium flex items-center justify-between"
+                    >
+                      Restaurants
+                      <ChevronDown size={18} className={`transition-transform duration-200 ${mobileDropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    
+                    {mobileDropdownOpen && (
+                      <div className="flex flex-col pl-4 mt-3 gap-3 border-l-2 border-brand-orange/30">
+                        {restaurants.length > 0 ? (
+                          restaurants.map((res) => (
+                            <Link
+                              key={res.id}
+                              to={`/restaurant/${res.id}`}
+                              className="text-brand-dark/80 font-medium text-sm hover:text-brand-orange transition-colors"
+                              onClick={() => {
+                                setMenuOpen(false);
+                                setMobileDropdownOpen(false);
+                              }}
+                            >
+                              {res.name}
+                            </Link>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 text-sm">Loading...</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return link.label === "Browse Menu" ? (
                 <HashLink
                   key={link.label}
                   smooth
@@ -280,8 +368,8 @@ const Navbar = () => {
                 >
                   {link.label}
                 </NavLink>
-              )
-            )}
+              );
+            })}
             
             {user ? (
               <button
@@ -290,7 +378,7 @@ const Navbar = () => {
                   setMenuOpen(false);
                   handleLogout();
                 }}
-                className="text-red-500 font-semibold text-left flex items-center gap-2 border-t pt-2 border-black/5"
+                className="text-red-500 font-semibold text-left flex items-center gap-2 border-t pt-4 mt-2 border-black/5"
               >
                 <LogOut size={18} /> Logout
               </button>
@@ -299,9 +387,9 @@ const Navbar = () => {
                 type="button"
                 onClick={() => {
                   setMenuOpen(false);
-                  openLogin();
+                  dispatch(openAuthModal());
                 }}
-                className="text-brand-orange font-semibold text-left border-t pt-2 border-black/5"
+                className="text-brand-orange font-semibold text-left border-t pt-4 mt-2 border-black/5"
               >
                 Login/Signup
               </button>

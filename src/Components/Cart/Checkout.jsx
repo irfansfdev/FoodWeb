@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
 
 export default function Checkout({
-  confirm,
   cartItems,
   onIncrease,
   onDecrease,
@@ -14,8 +13,8 @@ export default function Checkout({
     return total + item.price * item.quantity;
   }, 0);
 
-  const deliveryFee = 2;
-  const discount = subTotal > 50 ? 10 : 0;
+  const deliveryFee = 0;
+  const discount = 0;
   const total = subTotal + deliveryFee - discount;
 
   if (cartItems.length === 0) {
@@ -27,7 +26,7 @@ export default function Checkout({
           Add some delicious food to your cart.
         </p>
 
-        <Button onClick={() => navigate('/restaurants')} className="mt-6 px-6 py-2">
+        <Button onClick={() => navigate('/')} className="mt-6 px-6 py-2">
           Browse Restaurants
         </Button>
       </div>
@@ -128,12 +127,12 @@ export default function Checkout({
 
               <div className="flex justify-between">
                 <span>Delivery Fee</span>
-                <span>£{deliveryFee.toFixed(2)}</span>
+                <span>£{deliveryFee}</span>
               </div>
 
               <div className="flex justify-between">
                 <span>Discount</span>
-                <span>-£{discount.toFixed(2)}</span>
+                <span>-£{discount}</span>
               </div>
 
               <hr />
@@ -143,11 +142,12 @@ export default function Checkout({
                 <span>£{total.toFixed(2)}</span>
               </div>
 
+              {/* 1. Directly navigates to the next page now */}
               <Button
-                onClick={confirm}
+                onClick={() => navigate('/payment')} 
                 className="mt-6 w-full rounded-lg py-3 font-semibold"
               >
-                Place Order
+                Proceed to checkout
               </Button>
             </div>
           </div>

@@ -1,12 +1,43 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getRestaurants } from "/src/api/restaurantAPI"; 
+
 function RestaurantOffersHeader({
-  restaurantName,
   searchValue,
   onSearchChange,
 }) {
+  // 1. Grab the ID from the URL
+  const { id } = useParams();
+  
+  // 2. State initialized to null instead of a fallback generic string
+  const [restaurantName, setRestaurantName] = useState(null);
+
+  // 3. Fetch the actual restaurant name for the specific ID
+  useEffect(() => {
+    const fetchRestaurantName = async () => {
+      try {
+        const allRestaurants = await getRestaurants();
+        const matchedRestaurant = allRestaurants.find((r) => String(r.id) === String(id));
+        
+        if (matchedRestaurant) {
+          setRestaurantName(matchedRestaurant.name);
+        }
+      } catch (error) {
+        console.error("Error fetching restaurant name:", error);
+      }
+    };
+
+    if (id) {
+      fetchRestaurantName();
+    }
+  }, [id]);
+
   return (
-    <div className="flex w-full flex-col md:flex-row md:items-center gap-4 px-6">
-      <h2 className="text-2xl md:text-[32px] font-bold text-black font-poppins">
-        All Offers from {restaurantName}
+    <div className="flex w-full flex-col md:flex-row md:items-center gap-4 px-6 lg:px-20">
+      
+      {/* 4. Display the specific name, or nothing while it loads */}
+      <h2 className="text-2xl md:text-[32px] font-bold text-black font-poppins min-h-[48px] flex items-center">
+        {restaurantName ? `All Offers from ${restaurantName}` : ""}
       </h2>
 
       <div className="md:ml-auto mb-5">

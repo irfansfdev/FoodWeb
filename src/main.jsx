@@ -5,16 +5,13 @@ import { store } from './Redux/Store.jsx';
 import App from './App.jsx';
 import './index.css';
 import { ThemeProvider } from "./Context/ThemeContext.jsx";
-import { AuthModalProvider } from './context/AuthModalContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <ThemeProvider>
-        <AuthModalProvider>
-          {/* Removed the extra BrowserRouter from here! */}
+          {/* Removed AuthModalProvider — Redux is in charge now! */}
           <App />
-        </AuthModalProvider>
       </ThemeProvider>
     </Provider>
   </StrictMode>,

@@ -13,7 +13,6 @@ export default function Restaurant() {
       
       <RestaurantHero />
       
-      {/* All the complex tab, state, and mapping logic is safely tucked inside here */}
       <MenuSection />
       
       <Location />

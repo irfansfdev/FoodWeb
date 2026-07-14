@@ -14,6 +14,7 @@ const initialState = {
   token: localStorage.getItem('authToken') || null,
   loading: false,
   error: null,
+  isAuthModalOpen: false, // Controls the modal visibility
 };
 
 const authSlice = createSlice({
@@ -28,19 +29,18 @@ const authSlice = createSlice({
       state.loading = false;
       console.log("🚀 REDUX SUCCESS! Backend Data:", action.payload);
 
-      // 1. Extract the user object from action.payload.data
       if (action.payload.data) {
         state.user = action.payload.data; 
       }
-
-      // 2. Extract the string access token from action.payload.token.access
       if (action.payload.token && action.payload.token.access) {
         state.token = action.payload.token.access;
       }
 
-      // 3. Save them to LocalStorage
       if (state.token) localStorage.setItem('authToken', state.token);
       if (state.user) localStorage.setItem('authUser', JSON.stringify(state.user));
+      
+      // Auto-close modal on successful login
+      state.isAuthModalOpen = false; 
     },
     authFailure: (state, action) => {
       state.loading = false;
@@ -55,9 +55,15 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    openAuthModal: (state) => {
+      state.isAuthModalOpen = true;
+    },
+    closeAuthModal: (state) => {
+      state.isAuthModalOpen = false;
     }
   },
 });
 
-export const { authStart, authSuccess, authFailure, logout, clearError } = authSlice.actions;
+export const { authStart, authSuccess, authFailure, logout, clearError, openAuthModal, closeAuthModal } = authSlice.actions;
 export default authSlice.reducer;
