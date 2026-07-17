@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearError, closeAuthModal } from '../../Redux/Slices/AuthSlice'; // Ensure this path matches your setup
-import Login from '../../Pages/Customer/Login';
-import Signup from '../../Pages/Customer/Signup';
+import { clearError, closeAuthModal } from '../../Redux/Slices/AuthSlice'; 
+import Login from '../Authentication/Login';
+import Signup from '../Authentication/Signup';
 
 const AuthModal = () => {
   // 1. Read visibility state from Redux

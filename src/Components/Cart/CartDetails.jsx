@@ -1,13 +1,13 @@
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
 
-export default function Checkout({
+export default function CartDetail({
   cartItems,
   onIncrease,
   onDecrease,
-  onRemove, 
+  onRemove,
 }) {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const subTotal = cartItems.reduce((total, item) => {
     return total + item.price * item.quantity;
@@ -26,20 +26,20 @@ export default function Checkout({
           Add some delicious food to your cart.
         </p>
 
-        <Button onClick={() => navigate('/')} className="mt-6 px-6 py-2">
+        <Button onClick={() => navigate("/")} className="mt-6 px-6 py-2">
           Browse Restaurants
         </Button>
       </div>
     );
   }
-  
+
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
-      <button 
-        onClick={() => navigate('/restaurants')} 
+      <button
+        onClick={() => navigate("/")}
         className="mb-6 flex items-center gap-2 text-gray-600 hover:text-black cursor-pointer"
       >
-        ← Back to Restaurants
+        ← Back to Home
       </button>
 
       <h1 className="mb-8 text-4xl font-bold">Order Checkout</h1>
@@ -52,7 +52,7 @@ export default function Checkout({
               My Cart
             </div>
           </div>
-          
+
           {cartItems.map((item) => {
             return (
               <div
@@ -101,9 +101,11 @@ export default function Checkout({
                   </div>
 
                   <div className="flex flex-col items-end gap-2">
-                    <h4 className="font-bold whitespace-nowrap">£{item.price}</h4>
-                    <button 
-                      onClick={() => onRemove(item.id)} 
+                    <h4 className="font-bold whitespace-nowrap">
+                      £{item.price}
+                    </h4>
+                    <button
+                      onClick={() => onRemove(item.id)}
                       className="text-sm font-semibold text-red-500 hover:text-red-700 cursor-pointer hover:underline"
                     >
                       Remove
@@ -116,7 +118,7 @@ export default function Checkout({
         </div>
 
         {cartItems.length > 0 && (
-          <div className="h-fit rounded-2xl bg-white p-6 shadow-lg">
+          <div className=" rounded-2xl bg-white p-6 shadow-lg">
             <h2 className="mb-6 text-3xl font-bold">Total Payment</h2>
 
             <div className="space-y-4">
@@ -144,7 +146,10 @@ export default function Checkout({
 
               {/* 1. Directly navigates to the next page now */}
               <Button
-                onClick={() => navigate('/payment')} 
+                onClick={() => {
+                  // We pass the cartItems inside the state object so the next page can read them
+                  navigate("/checkout");
+                }}
                 className="mt-6 w-full rounded-lg py-3 font-semibold"
               >
                 Proceed to checkout

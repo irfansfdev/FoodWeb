@@ -1,12 +1,21 @@
-import { useEffect, useState } from 'react'
-import Navbar from '../../Components/Common/Navbar'
-import Footer from '../../Components/Common/Footer'
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+
+import Navbar from '../../Components/Common/Navbar';
+import Footer from '../../Components/Common/Footer';
+import Card from '../../Components/RestaurantDetails/Cards'; 
 import { getMenuItems } from '../../api/restaurantAPI';
+import { addToCartAPI } from '../../api/MenuAPI'; 
+import { openAuthModal } from '../../redux/Slices/authSlice';
 
 const CategoryItems = () => {
   const { categoryId } = useParams();
   const [menuItems, setMenuItems] = useState([]);
+  
+  const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -14,84 +23,85 @@ const CategoryItems = () => {
         const data = await getMenuItems();
         setMenuItems(data);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching category items:", error);
       }
     };
 
     fetchMenuItems();
   }, []);
 
+  // Filter items based on the categoryId in the URL
   const categoryItems = menuItems.filter(
-    (item) => item.category?.id == categoryId
+    (item) => String(item.category?.id) === String(categoryId)
   );
 
-  // console.log(categoryItems);
+  // Get unique restaurants from the filtered items
   const restaurants = [...new Set(categoryItems.map(item => item.restaurant.id))];
+
+  // 🛒 Add to Cart logic
+  const handleAddToCart = async (item) => {
+    const token = localStorage.getItem("authToken");
+
+    // Auth check before adding
+    if (!user || Object.keys(user).length === 0 || !token) {
+      dispatch(openAuthModal());
+      return;
+    }
+
+    try {
+      await addToCartAPI(item.id, 1);
+      navigate("/cart");
+    } catch (error) {
+      alert(error.message || "Could not add item to cart. Please try again.");
+    }
+  };
 
   return (
     <>
-  <Navbar />
+      <Navbar />
 
-  <div className="max-w-[1528px] mx-auto px-6 py-10">
+      <div className="max-w-[1528px] mx-auto px-6 py-10">
+        {/* Category Heading */}
+        <h1 className="text-5xl font-bold text-[#03081F] mb-10 text-center">
+          {categoryItems.length > 0 
+            ? `Category - ${categoryItems[0]?.category.name}` 
+            : "Loading Category..."}
+        </h1>
 
-    {/* Category Heading */}
-    <h1 className="text-5xl font-bold bg- text-[#03081F] mb-10 text-center">
-      {"Category - " + categoryItems[0]?.category.name}
-    </h1>
+        {restaurants.map((restaurantId) => {
+          // Find the restaurant name
+          const restaurantName = categoryItems.find(
+            item => item.restaurant.id === restaurantId
+          )?.restaurant?.name;
 
-    {restaurants.map((restaurantId) => (
-      <div key={restaurantId} className="mb-14">
+          return (
+            <div key={restaurantId} className="mb-14">
+              {/* Restaurant Name */}
+              <h2 className="text-2xl font-bold text-[#FC8A06] mb-6">
+                {restaurantName}
+              </h2>
 
-        {/* Restaurant Name */}
-        <h2 className="text-2xl font-bold text-[#FC8A06] mb-6">
-          {
-            categoryItems.find(item => item.restaurant.id === restaurantId)?.restaurant?.name
-          }
-        </h2>
-
-        {/* Restaurant Items */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-
-          {categoryItems
-            .filter(item => item.restaurant.id === restaurantId)
-            .slice(0, 5)
-            .map(item => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-              >
-                {item.image && (
-                  <img
-                    src={`http://127.0.0.1:8000${item.image}`}
-                    alt={item.name}
-                    className="w-full h-[180px] object-cover"
-                  />
-                )}
-
-                <div className="p-4">
-
-                  <h3 className="font-bold text-lg text-[#03081F]">
-                    {item.name}
-                  </h3>
-
-                  <p className="text-[#FC8A06] font-semibold mt-2">
-                    ${item.price}
-                  </p>
-
-                </div>
+              {/* Grid layout matching the Menu style */}
+              <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-6">
+                {categoryItems
+                  .filter(item => item.restaurant.id === restaurantId)
+                  // .slice(0, 5) // Note: I commented out the slice in case you want to see ALL items, uncomment if you strictly only want 5!
+                  .map(item => (
+                    <Card
+                      key={item.id}
+                      data={item}
+                      onBtnClick={() => handleAddToCart(item)}
+                    />
+                  ))}
               </div>
-            ))}
-
-        </div>
-
+            </div>
+          );
+        })}
       </div>
-    ))}
 
-  </div>
+      <Footer />
+    </>
+  );
+};
 
-  <Footer />
-</>
-  )
-}
-
-export default CategoryItems
+export default CategoryItems;

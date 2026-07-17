@@ -10,7 +10,6 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <ThemeProvider>
-          {/* Removed AuthModalProvider — Redux is in charge now! */}
           <App />
       </ThemeProvider>
     </Provider>

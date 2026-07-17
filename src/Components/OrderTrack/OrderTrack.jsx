@@ -1,274 +1,162 @@
-import { useState } from "react";
-import {
-  Clock,
-  ChefHat,
-  Utensils,
-  Bike,
-  CheckCircle2,
-  MapPin,
-  Copy,
-  Check,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { Clock } from "lucide-react"; 
 
-// Fallback matching your exact API structure so the UI doesn't break while loading
-const FALLBACK_ORDER = {
-  order_id: "ORD-00000",
-  restaurant: "Loading Restaurant...",
-  items: [],
-  total_price: "0.00",
-  current_status: "Pending",
-  delivery_address: "Loading address...",
-  status_history: [],
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
+import OrderSidebar from "../OrderTrack/OrderSidebar";
+import OrderDetails from "../OrderTrack/OrderDetail";
+
+const API_URL = "http://127.0.0.1:8000/order/orders/"; 
+const BACKEND_BASE_URL = "http://127.0.0.1:8000"; 
+
+// Helpers (passed to children as props)
+const safeString = (val, fallback = "") => {
+  if (!val) return fallback;
+  if (typeof val === "object") return val.name || val.title || val.address_line1 || val.address || fallback;
+  return String(val);
 };
 
-export default function OrderTrack({ orderData = FALLBACK_ORDER }) {
-  const [copied, setCopied] = useState(false);
+const safeImage = (val) => {
+  if (!val) return null; // 👈 Returns null instead of fallback image now
+  
+  let imgStr = typeof val === "object" ? (val.image || val.url || val.photo || null) : String(val);
+  
+  if (!imgStr || imgStr === "null" || imgStr === "undefined") return null;
+  if (imgStr.startsWith("/")) return `${BACKEND_BASE_URL}${imgStr}`;
+  return imgStr;
+};
 
-  // Helper function to extract timestamps from the status_history array
-  const getTimeForStatus = (statusName) => {
-    if (!orderData.status_history) return "--:--";
-    const record = orderData.status_history.find(
-      (h) => h.status.toLowerCase() === statusName.toLowerCase()
+export default function OrderTrack() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  
+  const [allOrders, setAllOrders] = useState([]);
+  const [orderData, setOrderData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      toast.error("Please log in to track your order.");
+      navigate("/login");
+      return;
+    }
+
+    const fetchOrderFromList = async () => {
+      try {
+        const response = await fetch(API_URL, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) throw new Error("Could not load your orders.");
+
+        const rawData = await response.json();
+        let ordersArray = [];
+        
+        if (rawData && typeof rawData === "object" && Array.isArray(rawData.data)) {
+          ordersArray = rawData.data;
+        } else if (Array.isArray(rawData)) {
+          ordersArray = rawData;
+        } else if (rawData && typeof rawData === "object") {
+          if (Array.isArray(rawData.results)) ordersArray = rawData.results;
+          else if (Array.isArray(rawData.orders)) ordersArray = rawData.orders;
+          else {
+            const dynamicArrayKey = Object.keys(rawData).find(key => Array.isArray(rawData[key]));
+            if (dynamicArrayKey) ordersArray = rawData[dynamicArrayKey];
+          }
+        }
+
+        if (!ordersArray || ordersArray.length === 0) {
+          setIsLoading(false);
+          return;
+        }
+
+        setAllOrders(ordersArray); 
+
+        let targetOrder = null;
+        const hasValidId = id && id !== ":id" && id !== "undefined" && id !== "null";
+
+        if (hasValidId) {
+          targetOrder = ordersArray.find((o) => o && (String(o.order_id) === String(id) || String(o.id) === String(id)));
+        } else {
+          targetOrder = ordersArray[0];
+          if (targetOrder) {
+            const fallbackId = targetOrder.order_id || targetOrder.id;
+            if (fallbackId) navigate(`/orderTrack/${fallbackId}`, { replace: true });
+          }
+        }
+
+        if (targetOrder) {
+          setOrderData(targetOrder);
+        } else {
+          const fallbackOrder = ordersArray[0];
+          const fallbackId = fallbackOrder.order_id || fallbackOrder.id;
+          navigate(`/orderTrack/${fallbackId}`, { replace: true });
+        }
+
+      } catch (error) {
+        console.error("🚨 Tracking error:", error);
+        toast.error("Failed to load tracking data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrderFromList();
+  }, [id, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-orange-500 mb-4"></div>
+        <p className="text-gray-500 font-medium animate-pulse">Loading tracking details...</p>
+      </div>
     );
-    if (!record) return "--:--";
-    
-    // Format timestamp to localized time (e.g. 12:45 PM)
-    return new Date(record.timestamp).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  }
 
-  const steps = [
-    { label: "Pending", time: getTimeForStatus("Pending"), icon: Clock },
-    { label: "Accepted", time: getTimeForStatus("Accepted"), icon: ChefHat },
-    { label: "Preparing", time: getTimeForStatus("Preparing"), icon: Utensils },
-    {
-      label: "Out for delivery",
-      time: getTimeForStatus("Out for delivery"),
-      icon: Bike,
-    },
-    {
-      label: "Delivered",
-      time: getTimeForStatus("Delivered"),
-      icon: CheckCircle2,
-    },
-  ];
-
-  const currentStepIndex = Math.max(
-    0,
-    steps.findIndex(
-      (step) => step.label.toLowerCase() === (orderData.current_status || "").toLowerCase()
-    )
-  );
-
-  const copyOrderId = () => {
-    navigator.clipboard.writeText(orderData.order_id);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // Calculate Subtotal dynamically from items array
-  const calculatedSubtotal = orderData.items?.reduce(
-    (acc, item) => acc + Number(item.subtotal || 0),
-    0
-  );
+  if (!orderData) {
+    return (
+      <div className="min-h-[70vh] bg-gray-50 py-10 px-6 flex flex-col items-center justify-center text-center">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md">
+          <Clock className="h-16 w-16 text-orange-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Orders Found</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            We couldn't find any recent orders on your account.
+          </p>
+          <button 
+            onClick={() => navigate("/")}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all"
+          >
+            Go to Menu
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto max-w-6xl px-4 md:px-6 py-10 font-sans min-h-[75vh]">
+      <div className="flex flex-col md:flex-row gap-6">
         
-        {/* ================= HEADER ================= */}
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            Track Your Order
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Follow your order in real-time and get it delivered fresh & fast.
-          </p>
-        </div>
-
-        {/* ================= STEPPER ================= */}
-        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
-          <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-2">
-            {steps.map((step, index) => {
-              const StepIcon = step.icon;
-              const isCompleted = index <= currentStepIndex;
-              const isActive = index === currentStepIndex;
-
-              return (
-                <div
-                  key={step.label}
-                  className="flex md:flex-col items-center flex-1 w-full relative z-10"
-                >
-                  {index < steps.length - 1 && (
-                    <>
-                      <div className="hidden md:block absolute left-[50%] right-[-50%] top-6 h-1 bg-gray-100 -z-10">
-                        <div
-                          className="h-full bg-orange-500 transition-all duration-500"
-                          style={{
-                            width:
-                              index < currentStepIndex
-                                ? "100%"
-                                : isActive
-                                  ? "50%"
-                                  : "0%",
-                          }}
-                        />
-                      </div>
-                      <div className="block md:hidden absolute left-6 top-12 bottom-[-16px] w-1 bg-gray-100 -z-10">
-                        <div
-                          className="w-full bg-orange-500 transition-all duration-500"
-                          style={{
-                            height: index < currentStepIndex ? "100%" : "0%",
-                          }}
-                        />
-                      </div>
-                    </>
-                  )}
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all border-2 ${
-                      isActive
-                        ? "bg-orange-500 border-orange-600 text-white scale-110"
-                        : isCompleted
-                          ? "bg-orange-100 border-orange-500 text-orange-600"
-                          : "bg-white border-gray-200 text-gray-400"
-                    }`}
-                  >
-                    <StepIcon className="w-5 h-5" />
-                  </div>
-                  <div className="ml-4 md:ml-0 md:mt-3 text-left md:text-center">
-                    <p
-                      className={`text-sm font-bold ${
-                        isActive ? "text-orange-600" : "text-gray-800"
-                      }`}
-                    >
-                      {step.label}
-                    </p>
-                    <p className="text-xs text-gray-400 font-medium">
-                      {step.time}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ================= ORDER DETAILS ================= */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-               <Utensils className="w-6 h-6 text-orange-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">
-                {orderData.restaurant}
-              </h2>
-              <p className="text-xs text-gray-400 flex items-center gap-2">
-                Order Placed: {new Date(orderData.created_at).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-
-          <div className="px-6 pt-5 pb-2 flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase text-gray-400">
-              Items
-            </h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-mono">
-                #{orderData.order_id}
-              </span>
-              <button
-                onClick={copyOrderId}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-                title="Copy Order ID"
-              >
-                {copied ? (
-                  <Check className="w-4 h-4 text-emerald-500" />
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="px-6 pb-4 space-y-4">
-            {orderData.items?.map((item) => (
-              <div key={item.id} className="flex items-center gap-4">
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={item.image?.startsWith("http") ? item.image : `http://127.0.0.1:8000${item.image}`}
-                    alt={item.name}
-                    className="w-12 h-12 rounded-lg object-cover bg-gray-100"
-                  />
-                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white">
-                    {item.quantity}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h5 className="text-sm font-semibold text-gray-800">
-                    {item.name}
-                  </h5>
-                  {item.type && (
-                    <p className="text-xs text-gray-400">{item.type}</p>
-                  )}
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-bold text-gray-800 block">
-                    £{Number(item.subtotal).toFixed(2)}
-                  </span>
-                  {item.quantity > 1 && (
-                    <span className="text-xs text-gray-400">
-                      (£{Number(item.price_at_order).toFixed(2)} each)
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            {orderData.items?.length === 0 && (
-              <p className="text-sm text-gray-500 italic">No items found for this order.</p>
-            )}
-          </div>
-
-          <div className="bg-gray-50/60 p-6 border-t border-gray-100 space-y-2.5 text-sm text-gray-500">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span className="font-medium text-gray-800">
-                £{calculatedSubtotal.toFixed(2)}
-              </span>
-            </div>
-            
-            {/* Removed missing fees based on API mapping. Only showing Subtotal and Final Total. */}
-
-            <div className="pt-3 border-t border-dashed border-gray-200 flex justify-between items-center text-base font-bold text-gray-900">
-              <span>Total Paid</span>
-              <span className="text-xl font-extrabold text-orange-600">
-                £{Number(orderData.total_price).toFixed(2)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= DELIVERY INFO ================= */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="w-5 h-5 text-gray-700" />
-            <h3 className="text-sm font-bold text-gray-900">
-              Delivery Information
-            </h3>
-          </div>
-          <p className="text-xs font-bold uppercase text-gray-400 mb-1">
-            Delivery Address
-          </p>
-          <p className="text-sm text-gray-700 leading-relaxed">
-            {orderData.delivery_address || "No delivery address provided."}
-          </p>
-        </div>
-
+        <OrderSidebar 
+          allOrders={allOrders} 
+          currentOrderId={orderData.order_id || orderData.id}
+          onSelectOrder={(selectedId) => navigate(`/orderTrack/${selectedId}`)}
+          safeString={safeString}
+          safeImage={safeImage}
+        />
+        
+        <OrderDetails 
+          orderData={orderData} 
+          safeString={safeString}
+          safeImage={safeImage}
+        />
+        
       </div>
     </div>
   );

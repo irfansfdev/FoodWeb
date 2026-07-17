@@ -3,7 +3,6 @@ import { fetchCartAPI, addToCartAPI, deleteCartItemAPI } from "../../api/cartAPI
 
 const BASE_URL = "http://127.0.0.1:8000";
 
-// --- THUNKS (Async Actions) ---
 
 // 1. Fetch Cart
 export const fetchCartAsync = createAsyncThunk(

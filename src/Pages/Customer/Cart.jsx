@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Checkout from "../../Components/Cart/Checkout";
+import CartDetail from "../../Components/Cart/CartDetails";
 import {
   fetchCartAsync,
   deleteCartItemAsync,
@@ -15,11 +15,11 @@ export default function Cart() {
   const { items: cartItems, status } = useSelector((state) => state.cart);
 
   useEffect(() => {
-    // Only fetch if idle to prevent infinite loops
-    if (status === "idle") {
-      dispatch(fetchCartAsync());
-    }
-  }, [status, dispatch]);
+    // 🔧 FIX: Removed the 'status === "idle"' check. 
+    // Now, every time the Cart page mounts, it forces a fresh fetch from Django 
+    // to guarantee Redux has the exact same data as your database.
+    dispatch(fetchCartAsync());
+  }, [dispatch]); // 🔧 FIX: Only depend on dispatch to prevent infinite loops
 
   const handleIncrease = (id) => {
     dispatch(increaseQuantity(id));
@@ -57,7 +57,7 @@ export default function Cart() {
   }
 
   return (
-    <Checkout
+    <CartDetail
       cartItems={cartItems}
       onIncrease={handleIncrease}
       onDecrease={handleDecrease}

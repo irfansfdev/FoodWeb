@@ -10,15 +10,14 @@ import arrowDownIcon from "../../assets/HomeAssets/Forward Button.png";
 import { Menu, LogOut, User, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
-// Make sure this path matches exactly where your getRestaurants API is located!
 import { getRestaurants } from "../../api/restaurantAPI"; 
 
 const navLinks = [
   { label: "Home", path: "/" },
   { label: "Browse Menu", path: "/#menu" },
   { label: "Special Offers", path: "/offers" },
-  { label: "Restaurants", path: "#" }, // Path doesn't matter here anymore, it's a dropdown
-  { label: "Order Tracking", path: "/orders/track" },
+  { label: "Restaurants", path: "#" }, 
+  { label: "Order Tracking", path: "/orderTrack/:id" },
 ];
 
 const Navbar = () => {
