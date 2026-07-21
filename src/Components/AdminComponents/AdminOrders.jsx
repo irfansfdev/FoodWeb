@@ -53,7 +53,7 @@ export default function AdminOrders({ orders, handleUpdateOrderStatus }) {
 
                 {/* ALREADY FIXED: The price calculation */}
                 <td className="px-6 py-4 font-bold text-brand-dark">
-                  Rs.{parseFloat(order.total_price || 0).toFixed(2)}
+                  ${parseFloat(order.total_price || 0).toFixed(2)}
                 </td>
 
                 <td className="px-6 py-4">

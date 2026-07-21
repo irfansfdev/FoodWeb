@@ -18,7 +18,7 @@ export default function AdminOverview({
   const stats = [
     {
       label: "Total Revenue",
-      value: `Rs.${deliveredSales.toFixed(2)}`,
+      value: `$${deliveredSales.toFixed(2)}`,
       desc: "From completed orders",
       icon: TrendingUp,
     },
@@ -95,7 +95,7 @@ export default function AdminOverview({
                 </div>
                 <span className="font-bold text-brand-dark">
                 
-                  Rs.{parseFloat(item.price || 0).toFixed(2)}
+                  ${parseFloat(item.price || 0).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -122,7 +122,7 @@ export default function AdminOverview({
                   </p>
                 </div>
                 <span className="text-xs font-black text-brand-orange bg-orange-50 px-2.5 py-1 rounded-full border border-orange-100 shrink-0">
-                  Rs.{deal.combo_price} only.
+                  ${deal.combo_price} only.
                 </span>
               </div>
             ))}

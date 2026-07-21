@@ -136,6 +136,8 @@ export default function AdminModals({
       return;
     }
 
+    // ... [keep everything else above the same]
+
     if (modalType.includes("deal")) {
       payload.append("name", formData.name || "");
       payload.append("combo_price", parseFloat(formData.combo_price || 0).toFixed(2));
@@ -147,16 +149,15 @@ export default function AdminModals({
         payload.append("restaurant_id", parseInt(formData.restaurant_id, 10));
       }
       
-      // Append each selected menu item
-      if (formData.menu_items && formData.menu_items.length > 0) {
-        formData.menu_items.forEach(id => {
-          payload.append("menu_items", id);
-        });
-      }
+      // ❌ REMOVE the forEach loop that appends menu_items to the payload here.
+      // Django's Deal creation endpoint hates it and will crash.
     }
 
-    onSubmitSuccess(payload);
+    // ✅ PASS the menu_items array as a second argument to the submit handler
+    onSubmitSuccess(payload, modalType.includes("deal") ? formData.menu_items : []);
   };
+
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -327,7 +328,7 @@ export default function AdminModals({
                           />
                           <div className="flex flex-col flex-1">
                             <span className="text-sm font-bold text-brand-dark">{item.name}</span>
-                            <span className="text-xs text-gray-500">Regular Price: £{item.price}</span>
+                            <span className="text-xs text-gray-500">Regular Price: ${item.price}</span>
                           </div>
                         </label>
                       ))}
@@ -336,7 +337,7 @@ export default function AdminModals({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-1">Combo Price (£)</label>
+                  <label className="block text-xs font-bold text-gray-500 mb-1">Combo Price ($)</label>
                   <input required name="combo_price" value={formData.combo_price || ""} onChange={handleChange} type="number" step="0.01" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-orange focus:outline-none" />
                 </div>
                 <div>

@@ -55,7 +55,7 @@ export default function AdminMenuItems({ menuItems, searchQuery, setSearchQuery,
                       </span>
                     </td>
                     
-                    <td className="px-6 py-4 font-black text-brand-dark">Rs.{parseFloat(item.price || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4 font-black text-brand-dark">${parseFloat(item.price || 0).toFixed(2)}</td>
                     <td className="px-6 py-4 text-xs text-gray-400 truncate max-w-xs">{item.description}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="inline-flex gap-2">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify'; 
 import { authStart, authSuccess, authFailure, clearError } from '../../Redux/Slices/AuthSlice';
 import { registerUserAPI } from '../../api/AuthAPI';
 import logo from '../../assets/HomeAssets/OrderUKLogo.png';
@@ -30,8 +31,10 @@ const Signup = ({ embedded = false, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // 👈 Password Mismatch Toast
     if (formData.password !== formData.confirm_password) {
       dispatch(authFailure("Passwords do not match!"));
+      toast.warn("Passwords do not match!"); 
       return;
     }
 
@@ -40,6 +43,9 @@ const Signup = ({ embedded = false, onSuccess }) => {
       const data = await registerUserAPI(formData);
       dispatch(authSuccess(data));
       
+      // 👈 Success Toast
+      toast.success(`Account created successfully! Welcome, ${formData.username}.`);
+      
       if (embedded && onSuccess) {
         onSuccess();
       } else if (!embedded) {
@@ -47,6 +53,9 @@ const Signup = ({ embedded = false, onSuccess }) => {
       }
     } catch (err) {
       dispatch(authFailure(err.message));
+      
+      // 👈 Error Toast
+      toast.error(err.message || "Registration failed. Please try again.");
     }
   };
 

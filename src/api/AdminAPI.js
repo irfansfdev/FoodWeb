@@ -21,8 +21,9 @@ export const analyticsRevenueByRestaurant = async () => {
     const response = await api.get("/order/admin/analytics/revenue-by-restaurant/");
     return response.data.data;
 };
-export const analyticsRevenueOverTime = async () => {
-    const response = await api.get("/order/admin/analytics/revenue-over-time/");
+export const analyticsRevenueOverTime = async (timeframe = 'weekly') => {
+    // 👇 Change "period=" to "range="
+    const response = await api.get(`/order/admin/analytics/revenue-over-time/?range=${timeframe}`);
     return response.data.data;
 };
 export const analyticsAllOrders = async () => {

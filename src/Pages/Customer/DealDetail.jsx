@@ -181,11 +181,11 @@ function DealDetail() {
               <div className="bg-slate-50 rounded-2xl p-4 mb-6 border border-slate-100">
                 <div className="flex items-baseline gap-2.5">
                   <span className="text-3xl font-extrabold text-orange-500">
-                    Rs. {comboPrice.toLocaleString()}
+                    $ {comboPrice.toLocaleString()}
                   </span>
                   {hasDiscount && (
                     <span className="text-slate-400 line-through text-sm font-medium">
-                      Rs. {originalPrice.toLocaleString()}
+                      $ {originalPrice.toLocaleString()}
                     </span>
                   )}
                 </div>

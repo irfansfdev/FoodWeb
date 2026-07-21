@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify'; // 
 import { authStart, authSuccess, authFailure, clearError } from '../../Redux/Slices/AuthSlice';
 import { loginUserAPI } from '../../api/AuthAPI';
 import logo from '../../assets/HomeAssets/OrderUKLogo.png';
@@ -8,7 +9,7 @@ import logo from '../../assets/HomeAssets/OrderUKLogo.png';
 const Login = ({ embedded = false, onSuccess }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation(); // 👈 Initialize location to read redirect states
+  const location = useLocation();
   const { loading, error } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
@@ -24,48 +25,46 @@ const Login = ({ embedded = false, onSuccess }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  dispatch(authStart());
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    dispatch(authStart());
 
-  try {
-    // 1. Rename to apiResponse to avoid the confusing data.data structure
-    const apiResponse = await loginUserAPI(formData);
-    
-    // 2. Save the exact access token
-    if (apiResponse.token?.access) {
-      localStorage.setItem("authToken", apiResponse.token.access);
-    }
-
-    // 🚨 3. THE FIX: Grab the user details from apiResponse.data
-    const userData = apiResponse.data;
-
-    // 4. Check for admin
-    const isAdmin = userData?.is_admin === true || String(userData?.is_admin).toLowerCase() === "true";
-    
-    // 5. Save role and user to localStorage
-    localStorage.setItem("userRole", isAdmin ? "admin" : "customer");
-    localStorage.setItem("authUser", JSON.stringify(userData));
-
-    // Send the whole response to Redux as you were doing before
-    dispatch(authSuccess(apiResponse));
-
-    // 6. Routing Logic...
-    if (isAdmin) {
-      if (embedded && onSuccess) onSuccess();
-      navigate('/admin/dashboard', { replace: true });
-    } else {
-      if (embedded && onSuccess) {
-        onSuccess();
-      } else {
-        const origin = location.state?.from?.pathname || '/';
-        navigate(origin, { replace: true });
+    try {
+      const apiResponse = await loginUserAPI(formData);
+      
+      if (apiResponse.token?.access) {
+        localStorage.setItem("authToken", apiResponse.token.access);
       }
+
+      const userData = apiResponse.data;
+      const isAdmin = userData?.is_admin === true || String(userData?.is_admin).toLowerCase() === "true";
+      
+      localStorage.setItem("userRole", isAdmin ? "admin" : "customer");
+      localStorage.setItem("authUser", JSON.stringify(userData));
+
+      dispatch(authSuccess(apiResponse));
+
+      // 👈 Success Toast
+      toast.success(`Welcome back, ${userData?.first_name || userData?.name || 'User'}!`);
+
+      if (isAdmin) {
+        if (embedded && onSuccess) onSuccess();
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        if (embedded && onSuccess) {
+          onSuccess();
+        } else {
+          const origin = location.state?.from?.pathname || '/';
+          navigate(origin, { replace: true });
+        }
+      }
+    } catch (err) {
+      dispatch(authFailure(err.message));
+      
+      // 👈 Error Toast
+      toast.error(err.message || "Failed to log in.");
     }
-  } catch (err) {
-    dispatch(authFailure(err.message));
-  }
-};
+  };
 
   const cardContent = (
     <div className={embedded ? "w-full" : "w-full max-w-[440px] bg-[#fbfbfb] dark:bg-[#0a0f2e] rounded-[12px] shadow-[5px_5px_14px_0px_rgba(0,0,0,0.15)] p-8 lg:p-10"}>

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Button from "../common/Button";
 
 export default function CartDetail({
@@ -17,15 +18,25 @@ export default function CartDetail({
   const discount = 0;
   const total = subTotal + deliveryFee - discount;
 
+  // FIX: Trigger the toast BEFORE removing the item from state
+  const handleRemove = (id, title, name) => {
+    // Fallback just in case your backend uses 'name' instead of 'title'
+    const itemName = title || name || "Item"; 
+    
+    // 1. Fire the toast first
+    toast.info(`${itemName} removed from cart`);
+
+    // 2. Then run the removal function
+    onRemove(id);
+  };
+
   if (cartItems.length === 0) {
     return (
       <div className="mx-auto flex min-h-[70vh] flex-col items-center justify-center">
         <h1 className="text-4xl font-bold">Your Cart is Empty 🛒</h1>
-
         <p className="mt-3 text-gray-500">
           Add some delicious food to your cart.
         </p>
-
         <Button onClick={() => navigate("/")} className="mt-6 px-6 py-2">
           Browse Restaurants
         </Button>
@@ -62,12 +73,12 @@ export default function CartDetail({
                 <div className="flex items-center gap-5">
                   <img
                     src={item.image}
-                    alt={item.title}
+                    alt={item.title || item.name}
                     className="h-24 w-32 rounded-lg object-cover"
                   />
 
                   <div className="max-w-md">
-                    <h3 className="text-lg font-bold">{item.title}</h3>
+                    <h3 className="text-lg font-bold">{item.title || item.name}</h3>
 
                     <p className="mt-2 text-sm text-gray-500">
                       {item.description}
@@ -104,8 +115,10 @@ export default function CartDetail({
                     <h4 className="font-bold whitespace-nowrap">
                       £{item.price}
                     </h4>
+                    
+                    {/* FIX: Passed both title and name safely into the handler */}
                     <button
-                      onClick={() => onRemove(item.id)}
+                      onClick={() => handleRemove(item.id, item.title, item.name)}
                       className="text-sm font-semibold text-red-500 hover:text-red-700 cursor-pointer hover:underline"
                     >
                       Remove
@@ -144,10 +157,8 @@ export default function CartDetail({
                 <span>£{total.toFixed(2)}</span>
               </div>
 
-              {/* 1. Directly navigates to the next page now */}
               <Button
                 onClick={() => {
-                  // We pass the cartItems inside the state object so the next page can read them
                   navigate("/checkout");
                 }}
                 className="mt-6 w-full rounded-lg py-3 font-semibold"

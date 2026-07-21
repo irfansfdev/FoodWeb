@@ -15,7 +15,6 @@ import { getRestaurants } from "../../api/restaurantAPI";
 const navLinks = [
   { label: "Home", path: "/" },
   { label: "Browse Menu", path: "/#menu" },
-  { label: "Special Offers", path: "/offers" },
   { label: "Restaurants", path: "#" }, 
   { label: "Order Tracking", path: "/orderTrack/:id" },
 ];
@@ -23,16 +22,21 @@ const navLinks = [
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   
-  // NEW: State for restaurants and dropdown toggles
   const [restaurants, setRestaurants] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  
+  const cartItems = useSelector((state) => state.cart?.items || []); 
+  
+  // Calculate dynamic totals
+  const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
+  const totalPrice = cartItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0).toFixed(2);
+
   const navigate = useNavigate();
 
-  // NEW: Fetch restaurants when Navbar loads
   useEffect(() => {
     const fetchRes = async () => {
       try {
@@ -86,7 +90,7 @@ const Navbar = () => {
                 </button>
               </div>
 
-              {/* Basket wrapper with redirect added */}
+              {/* Basket wrapper */}
               <div 
                 onClick={() => navigate('/cart')}
                 className="flex items-center bg-brand-green border border-black/10 rounded-br-card text-white font-body h-full w-[378px] cursor-pointer hover:bg-opacity-95 transition-all select-none"
@@ -101,14 +105,16 @@ const Navbar = () => {
 
                 <div className="h-full w-px bg-white/30" />
 
+                {/* DYNAMIC CART ITEMS */}
                 <div className="w-[112px] flex items-center justify-center font-semibold text-[16px]">
-                  23 Items
+                  {totalItems} {totalItems === 1 ? 'Item' : 'Items'}
                 </div>
 
                 <div className="h-full w-px bg-white/30" />
 
+                {/* DYNAMIC CART PRICE */}
                 <div className="flex items-center justify-center w-[116px] font-semibold text-[16px]">
-                  GBP 79.89
+                  GBP {totalPrice}
                 </div>
 
                 <div className="h-full w-px bg-white/30" />
@@ -141,7 +147,6 @@ const Navbar = () => {
 
             <nav className="flex items-center gap-8 font-nav text-sm font-semibold">
               {navLinks.map((link) => {
-                // NEW: Desktop Dropdown Intercept
                 if (link.label === "Restaurants") {
                   return (
                     <div
@@ -296,7 +301,8 @@ const Navbar = () => {
             className="flex items-center bg-brand-green h-full w-[180px] sm:w-[220px] justify-center gap-2 shrink-0 cursor-pointer hover:bg-opacity-95 transition-all select-none"
           >
             <img src={basketIcon} alt="Basket" className="w-[38px] h-[38px] object-contain" />
-            <span className="text-white font-semibold text-[15px] sm:text-[16px]">GBP 79.89</span>
+            {/* DYNAMIC CART PRICE ON MOBILE */}
+            <span className="text-white font-semibold text-[15px] sm:text-[16px]">GBP {totalPrice}</span>
           </div>
         </div>
 
@@ -308,7 +314,6 @@ const Navbar = () => {
         {menuOpen && (
           <div className="w-full px-4 py-4 flex flex-col gap-4 bg-white border-b border-black/10">
             {navLinks.map((link) => {
-              // NEW: Mobile Dropdown Intercept
               if (link.label === "Restaurants") {
                 return (
                   <div key={link.label} className="flex flex-col">

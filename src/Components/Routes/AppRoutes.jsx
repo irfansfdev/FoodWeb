@@ -16,7 +16,7 @@ import DealDetail from "../../Pages/Customer/DealDetail";
 import CategoryDetail from "../../Pages/Customer/CategoryDetail";
 import Checkout from "../../Pages/Customer/Checkout";
 
-import DashboardHome from "../../Pages/Admin/DashboardHome"
+import DashboardHome from "../../Pages/Admin/AdminDashboard"
 
 
 

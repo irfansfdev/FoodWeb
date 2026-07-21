@@ -1,6 +1,14 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { LayoutDashboard, ClipboardList, Store, UtensilsCrossed, Tags, Percent, LogOut } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  ClipboardList, 
+  Store, 
+  UtensilsCrossed, 
+  Tags, 
+  Percent,
+  LineChart, // <-- Added LineChart icon for Analytics
+  LogOut 
+} from "lucide-react";
 
 export default function AdminSidebar({ activeTab, setActiveTab, setSearchQuery, activeOrdersCount, onLogout }) {
   const tabs = [
@@ -9,18 +17,19 @@ export default function AdminSidebar({ activeTab, setActiveTab, setSearchQuery, 
     { id: "restaurants", label: "Restaurants", icon: Store },
     { id: "menu", label: "Menu Items", icon: UtensilsCrossed },
     { id: "categories", label: "Categories", icon: Tags },
-    { id: "deals", label: "Deals & Offers", icon: Percent },
+    { id: "deals", label: "Deals", icon: Percent },
+    { id: "analytics", label: "Analytics", icon: LineChart }, // <-- Added Analytics tab here
   ];
 
   return (
-    <aside className="bg-brand-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col border-r border-black/20">
+    <aside className="bg-brand-dark text-white w-64 flex-shrink-0 flex flex-col h-full border-r border-black/20">
       <div className="p-6 border-b border-white/5 flex items-center justify-between">
         <Link to="/" className="text-2xl font-black text-brand-orange tracking-tight">
           ChickBite<span className="text-xs text-gray-400 font-normal ml-2 bg-white/5 px-2 py-0.5 rounded">Admin</span>
         </Link>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isTabActive = activeTab === tab.id;
@@ -53,10 +62,10 @@ export default function AdminSidebar({ activeTab, setActiveTab, setSearchQuery, 
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-white/5 mt-auto">
         <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-300 hover:bg-white/5 hover:text-white transition-all">
           <LogOut className="w-5 h-5" />
-          <span>Store Front</span>
+          <span>Logout</span>
         </button>
       </div>
     </aside>

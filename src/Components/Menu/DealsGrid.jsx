@@ -132,7 +132,7 @@ function DealsGrid() {
       </div>
 
       {/* ========================================== */}
-      {/* 📱 MOBILE VIEW: Perfectly sized compact row*/}
+      {/*  MOBILE VIEW: Perfectly sized compact row*/}
       {/* ========================================== */}
       <div className="flex lg:hidden gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
         {filteredDeals.map((deal) => (
@@ -146,7 +146,7 @@ function DealsGrid() {
               image={deal.image?.startsWith("http") ? deal.image : `http://127.0.0.1:8000${deal.image}`} 
               name={deal.name} 
               restaurantLabel={getRestaurantName(deal)} 
-              discount={`£${deal.combo_price}`} 
+              discount={`$${deal.combo_price}`} 
               compact 
             />
           </Link>
@@ -181,7 +181,7 @@ function DealsGrid() {
                   image={deal.image?.startsWith("http") ? deal.image : `http://127.0.0.1:8000${deal.image}`} 
                   name={deal.name} 
                   restaurantLabel={getRestaurantName(deal)} 
-                  discount={`£${deal.combo_price}`} 
+                  discount={`$${deal.combo_price}`} 
                 />
               </Link>
             ))}
@@ -206,7 +206,7 @@ function DealsGrid() {
                 image={deal.image?.startsWith("http") ? deal.image : `http://127.0.0.1:8000${deal.image}`} 
                 name={deal.name} 
                 restaurantLabel={getRestaurantName(deal)} 
-                discount={`£${deal.combo_price}`} 
+                discount={`$${deal.combo_price}`} 
               />
             </Link>
           ))}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Menu } from "lucide-react"; 
 import * as AdminAPI from "../../api/AdminAPI"; 
 import * as RestaurantAPI from "../../api/RestaurantAPI"; 
 import api from "../../api/axios";
@@ -13,11 +14,13 @@ import AdminMenuItems from "../../Components/AdminComponents/AdminMenuItems";
 import AdminCategories from "../../Components/AdminComponents/AdminCategories";
 import AdminDeals from "../../Components/AdminComponents/AdminDeals";
 import AdminModals from "../../Components/AdminComponents/AdminModals";
+import AdminAnalytics from "../../Components/AdminComponents/AdminAnalytics"; 
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // State
   const [orders, setOrders] = useState([]);
@@ -25,6 +28,12 @@ export default function AdminDashboard() {
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [deals, setDeals] = useState([]);
+  
+  // Analytics State
+  const [ordersByStatus, setOrdersByStatus] = useState([]);
+  const [analyticsOverviewData, setAnalyticsOverviewData] = useState(null); 
+  const [revenueOverTime, setRevenueOverTime] = useState([]); 
+  
   const [isLoading, setIsLoading] = useState(true);
 
   // Modal States
@@ -41,14 +50,20 @@ export default function AdminDashboard() {
           fetchedDeals, 
           fetchedRestaurants, 
           fetchedMenuItems,
-          fetchedCategories
+          fetchedCategories,
+          fetchedOrdersByStatus,      
+          fetchedOverviewData,
+          fetchedRevenueOverTime 
         ] = await Promise.all([
           AdminAPI.analyticsAllOrders(),
           RestaurantAPI.getDeals(),
           RestaurantAPI.getRestaurants(),
           RestaurantAPI.getMenuItems(),
-          // FIXED: Changed getCategories to getCategory to match RestaurantAPI.js
-          RestaurantAPI.getCategory ? RestaurantAPI.getCategory() : Promise.resolve([])
+          RestaurantAPI.getCategory ? RestaurantAPI.getCategory() : Promise.resolve([]),
+          AdminAPI.analyticsAllOrdersByStatus().catch(() => []),    
+          AdminAPI.analyticsOverview().catch(() => null),
+          // We default to asking the API for 'weekly' on first load
+          AdminAPI.analyticsRevenueOverTime('weekly').catch(() => []) 
         ]);
         
         setOrders(fetchedOrders || []);
@@ -56,6 +71,10 @@ export default function AdminDashboard() {
         setRestaurants(fetchedRestaurants || []);
         setMenuItems(fetchedMenuItems || []);
         setCategories(fetchedCategories || []);
+        
+        setOrdersByStatus(fetchedOrdersByStatus || []);
+        setAnalyticsOverviewData(fetchedOverviewData || null);
+        setRevenueOverTime(fetchedRevenueOverTime || []);
         
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
@@ -67,8 +86,20 @@ export default function AdminDashboard() {
     loadDashboardData();
   }, []);
 
-  // FIXED: Using your authorized Axios instance to hit the discovered URLs
+  const handleTimeFrameChange = async (newTimeframe) => {
+    try {
+      console.log(`🗣️ Asking backend for: ${newTimeframe}`); // <--- Added
+      const fetchedRevenue = await AdminAPI.analyticsRevenueOverTime(newTimeframe);
+      console.log(`📥 Backend replied with:`, fetchedRevenue); // <--- Added
+      
+      setRevenueOverTime(fetchedRevenue || []);
+    } catch (error) {
+      console.error("Failed to change timeframe:", error);
+    }
+  };
+
   const openModal = async (type, item = null) => {
+    // ... (Your openModal code stays exactly the same)
     setModalType(type);
 
     if (item && item.id) {
@@ -91,10 +122,8 @@ export default function AdminDashboard() {
         }
 
         if (detailedItem) {
-          console.log("🎯 SUCCESS! Securely fetched database details:", detailedItem);
           setSelectedItem(detailedItem);
         }
-
       } catch (error) {
         console.error("Failed to sync secure backend details:", error);
       }
@@ -108,8 +137,8 @@ export default function AdminDashboard() {
     setSelectedItem(null);
   };
 
-  // Unified Modal Submit Handler to Add/Edit Data
-  const handleModalSubmit = async (formDataOrPayload) => {
+  const handleModalSubmit = async (formDataOrPayload, menuItemsArray = []) => {
+    // ... (Your handleModalSubmit code stays exactly the same)
     try {
       const isEdit = !!selectedItem;
       const id = selectedItem?.id;
@@ -146,11 +175,23 @@ export default function AdminDashboard() {
           const res = await AdminAPI.editDeal(id, formDataOrPayload);
           setDeals(prev => prev.map(d => (d.id === id ? res : d)));
         } else {
-          const res = await AdminAPI.createDeal(formDataOrPayload);
-          setDeals(prev => [...prev, res]);
+          const newDeal = await AdminAPI.createDeal(formDataOrPayload);
+          
+          if (menuItemsArray && menuItemsArray.length > 0) {
+            await Promise.all(
+              menuItemsArray.map(menuItemId => {
+                return AdminAPI.createDealItem({
+                  deal_id: newDeal.id,
+                  menu_item_id: menuItemId,
+                  quantity: 1
+                });
+              })
+            );
+          }
+          const updatedDeals = await RestaurantAPI.getDeals();
+          setDeals(updatedDeals || []);
         }
       }
-
       closeModal();
     } catch (error) {
       console.error("Failed to save data:", error);
@@ -211,28 +252,41 @@ export default function AdminDashboard() {
     ["pending", "accepted", "preparing", "out_for_delivery"].includes(o.current_status)
   ).length;
 
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear(); 
+    window.location.href = "/login";
+  };
+
   return (
     <div className="min-h-screen bg-brand-offwhite flex font-body text-brand-dark">
-      <AdminSidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        setSearchQuery={setSearchQuery} 
-        activeOrdersCount={activeOrdersCount} 
-        onLogout={() => navigate("/")} 
-      />
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity" onClick={() => setIsMobileMenuOpen(false)} />
+      )}
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 shadow-2xl transform transition-transform duration-300 ease-in-out md:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <AdminSidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setIsMobileMenuOpen(false); }} setSearchQuery={setSearchQuery} activeOrdersCount={activeOrdersCount} onLogout={handleLogout} />
+      </div>
+      <div className="hidden md:block shrink-0 h-screen sticky top-0">
+        <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} setSearchQuery={setSearchQuery} activeOrdersCount={activeOrdersCount} onLogout={handleLogout} />
+      </div>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200/80 h-16 flex items-center justify-between px-6 shrink-0 sticky top-0 z-10">
-          <h1 className="text-xl font-bold text-brand-dark capitalize">
-            {activeTab === "menu" ? "Menu Items" : activeTab.replace("-", " ")}
-          </h1>
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+        <header className="bg-white border-b border-gray-200/80 h-16 flex items-center justify-between px-4 md:px-6 shrink-0 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <button type="button" className="md:hidden flex items-center justify-center text-brand-dark p-2 -ml-2 hover:bg-gray-100 rounded-lg cursor-pointer" onClick={() => setIsMobileMenuOpen(true)}>
+              <Menu size={24} />
+            </button>
+            <h1 className="text-xl font-bold text-brand-dark capitalize">
+              {activeTab === "menu" ? "Menu Items" : activeTab.replace("-", " ")}
+            </h1>
+          </div>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-brand-orange flex items-center justify-center text-white font-black text-sm">A</div>
-            <span className="text-sm font-semibold text-brand-dark">Manager Panel</span>
+            <span className="text-sm font-semibold text-brand-dark hidden sm:block">Manager Panel</span>
           </div>
         </header>
 
-        <main className="p-6 max-w-7xl w-full mx-auto space-y-6">
+        <main className="p-4 md:p-6 max-w-7xl w-full mx-auto space-y-6">
           {isLoading ? (
              <div className="text-center py-20 text-gray-500 font-bold animate-pulse">Loading System Data...</div>
           ) : (
@@ -243,20 +297,23 @@ export default function AdminDashboard() {
               {activeTab === "menu" && <AdminMenuItems menuItems={menuItems} searchQuery={searchQuery} setSearchQuery={setSearchQuery} openModal={openModal} handleDeleteMenuitem={handleDeleteMenuitem} />}
               {activeTab === "categories" && <AdminCategories categories={categories} openModal={openModal} handleDeleteCategory={handleDeleteCategory} />}
               {activeTab === "deals" && <AdminDeals deals={deals} openModal={openModal} handleDeleteDeal={handleDeleteDeal} />}
+              
+              {/* ✨ ANALYTICS TAB UPDATED */}
+              {activeTab === "analytics" && (
+                <AdminAnalytics 
+                  ordersByStatus={ordersByStatus} 
+                  analyticsOverviewData={analyticsOverviewData}
+                  revenueOverTime={revenueOverTime}
+                  totalRestaurantsCount={restaurants.length}
+                  onTimeFrameChange={handleTimeFrameChange} // 👈 Added Walkie Talkie!
+                />
+              )}
             </>
           )}
         </main>
       </div>
 
-      <AdminModals 
-        modalType={modalType} 
-        selectedItem={selectedItem} 
-        closeModal={closeModal}
-        restaurantsList={restaurants}
-        categoriesList={categories}
-        menuItemsList={menuItems} 
-        onSubmitSuccess={handleModalSubmit} 
-      />
+      <AdminModals modalType={modalType} selectedItem={selectedItem} closeModal={closeModal} restaurantsList={restaurants} categoriesList={categories} menuItemsList={menuItems} onSubmitSuccess={handleModalSubmit} />
     </div>
   );
 }

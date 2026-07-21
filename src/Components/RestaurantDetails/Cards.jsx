@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import plus from "../../assets/plus.png";
 
 const BASE_URL = "http://127.0.0.1:8000"; // Your Django backend URL
@@ -11,6 +12,16 @@ const Card = ({ data, onBtnClick }) => {
   if (data.image) {
     itemImage = data.image.startsWith("http") ? data.image : `${BASE_URL}${data.image}`;
   }
+
+  // Wrapper function to handle both the prop function and the toast
+  const handleAddToCart = () => {
+    if (onBtnClick) {
+      onBtnClick(data); // Passing data back can be helpful for the cart logic
+    }
+    
+    // Trigger the toast notification
+   toast.success(`${itemName} added to cart!`);
+  };
 
   return (
     <article className="overflow-hidden rounded-xl p-5 bg-white shadow-[5px_5px_34px_0px_rgba(0,0,0,0.12)] transition-transform hover:-translate-y-1 hover:shadow-lg">
@@ -43,7 +54,7 @@ const Card = ({ data, onBtnClick }) => {
           {/* Add To Cart Trigger */}
           <div className="absolute bottom-0 right-0 rounded-tl-4xl opacity-90 rounded-br-lg bg-white/80 px-3 pt-5 backdrop-blur-sm">
             <button 
-              onClick={onBtnClick}
+              onClick={handleAddToCart}
               className="cursor-pointer hover:scale-110 transition-transform active:scale-95"
               title={`Add ${itemName} to cart`}
             >
