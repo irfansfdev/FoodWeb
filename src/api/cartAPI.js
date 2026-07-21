@@ -1,4 +1,6 @@
-const BASE_URL = "http://127.0.0.1:8000/order/cart"; 
+import { API_BASE_URL } from './axios';
+
+const BASE_URL = `${API_BASE_URL}/order/cart`; 
 
 // Helper to get auth token from localStorage using your exact key: "authToken"
 const getAuthHeaders = () => {

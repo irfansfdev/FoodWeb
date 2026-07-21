@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { getRestaurants } from "/src/api/restaurantAPI";
 import { useNavigate } from "react-router-dom"; 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getImageUrl } from "/src/api/axios";
 
 function RestaurantGrid({ type }) {
   const [restaurants, setRestaurants] = useState([]);
@@ -49,7 +50,7 @@ function RestaurantGrid({ type }) {
             <div key={restaurantId} className="flex-shrink-0 snap-start">
               <RestaurantCard 
                 {...r} 
-                image={`http://127.0.0.1:8000${r.image}`} 
+                image={getImageUrl(r.image)} 
                 onClick={() => {
                   if (restaurantId) navigate(`/restaurant/${restaurantId}`);
                   else console.error("Could not find an ID for this restaurant:", r);
@@ -88,7 +89,7 @@ function RestaurantGrid({ type }) {
                 <div key={restaurantId} className="flex-shrink-0 snap-start">
                   <RestaurantCard 
                     {...r} 
-                    image={`http://127.0.0.1:8000${r.image}`} 
+                    image={getImageUrl(r.image)} 
                     onClick={() => {
                       if (restaurantId) navigate(`/restaurant/${restaurantId}`);
                     }} 
@@ -117,7 +118,7 @@ function RestaurantGrid({ type }) {
               <div key={restaurantId}>
                 <RestaurantCard 
                   {...r} 
-                  image={`http://127.0.0.1:8000${r.image}`} 
+                  image={getImageUrl(r.image)} 
                   onClick={() => {
                     if (restaurantId) navigate(`/restaurant/${restaurantId}`);
                   }} 

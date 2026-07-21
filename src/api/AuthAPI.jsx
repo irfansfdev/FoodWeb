@@ -1,4 +1,6 @@
-const BASE_URL = 'http://127.0.0.1:8000'; // Adjust if your backend runs elsewhere
+import { API_BASE_URL } from './axios';
+
+const BASE_URL = API_BASE_URL; 
 
 // Helper function to process fetch responses and extract database errors
 const handleResponse = async (response) => {

@@ -1,6 +1,8 @@
+import { API_BASE_URL } from './axios';
+
 export const fetchDealsAPI = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/restaurants/all-deal", {
+    const response = await fetch(`${API_BASE_URL}/restaurants/all-deal`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

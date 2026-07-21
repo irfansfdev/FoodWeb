@@ -3,11 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify"; 
 import { getDeals } from "/src/api/restaurantAPI";
 import { useDispatch, useSelector } from "react-redux"; 
-import { addToCartAsync } from "/src/redux/Slices/cartSlice"; 
+import { addToCartAsync } from "/src/Redux/Slices/cartSlice"; 
 // Import Redux action instead of Context
-import { openAuthModal } from "/src/redux/Slices/authSlice"; 
-import Navbar from "../../components/Common/Navbar";
-import Footer from "../../components/Common/Footer";
+import { openAuthModal } from "/src/Redux/Slices/authSlice"; 
+import Navbar from "../../Components/Common/Navbar";
+import Footer from "../../Components/Common/Footer";
 
 function DealDetail() {
   const { id } = useParams();
@@ -113,7 +113,7 @@ function DealDetail() {
 
   const formatImageUrl = (urlStr) => {
     if (!urlStr) return "";
-    return urlStr.startsWith("http") ? urlStr : `http://127.0.0.1:8000${urlStr}`;
+    return getImageUrl(urlStr);
   };
 
   return (

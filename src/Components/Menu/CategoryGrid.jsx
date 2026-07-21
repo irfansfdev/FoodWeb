@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { getMenuItems } from "/src/api/restaurantAPI";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react"; 
+import { getImageUrl } from "/src/api/axios";
 
 function CategoryGrid() {
   const [menuItems, setMenuItems] = useState([]);
@@ -69,7 +70,7 @@ function CategoryGrid() {
             <CategoryCard
               image={
                 menuItem.image
-                  ? `http://127.0.0.1:8000${menuItem.image}`
+                  ? getImageUrl(menuItem.image)
                   : "/src/assets/category-placeholder.png"
               }
               name={menuItem.category.name}
@@ -106,7 +107,7 @@ function CategoryGrid() {
                 <CategoryCard
                   image={
                     menuItem.image
-                      ? `http://127.0.0.1:8000${menuItem.image}`
+                      ? getImageUrl(menuItem.image)
                       : "/src/assets/category-placeholder.png"
                   }
                   name={menuItem.category.name}
@@ -132,7 +133,7 @@ function CategoryGrid() {
               key={menuItem.category.id}
               image={
                 menuItem.image
-                  ? `http://127.0.0.1:8000${menuItem.image}`
+                  ? getImageUrl(menuItem.image)
                   : "/src/assets/category-placeholder.png"
               }
               name={menuItem.category.name}

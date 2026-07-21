@@ -7,7 +7,7 @@ import Footer from '../../Components/Common/Footer';
 import Card from '../../Components/RestaurantDetails/Cards'; 
 import { getMenuItems } from '../../api/restaurantAPI';
 import { addToCartAPI } from '../../api/MenuAPI'; 
-import { openAuthModal } from '../../redux/Slices/authSlice';
+import { openAuthModal } from '../../Redux/Slices/authSlice';
 
 const CategoryItems = () => {
   const { categoryId } = useParams();

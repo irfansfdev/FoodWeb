@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { FaClock } from "react-icons/fa";
 import { useTheme } from "../../Context/ThemeContext";
 import { getRestaurants } from "/src/api/restaurantAPI"; 
+import { getImageUrl } from "/src/api/axios";
 
 import backgroundImage from "../../assets/Group 23.png";
 import backgroundDarkImage from "../../assets/Group 23 Dark.png";
@@ -47,7 +48,8 @@ export default function RestaurantHero() {
   // Helper function to handle image URLs safely
   const formatImageUrl = (urlStr) => {
     if (!urlStr) return burgerImage; 
-    return urlStr.startsWith("http") ? urlStr : `http://127.0.0.1:8000${urlStr}`;
+    const imageUrl = getImageUrl(urlStr);
+    return imageUrl || burgerImage;
   };
 
   // 1. LOADING STATE: Clean loading indicator while waiting for the database

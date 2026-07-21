@@ -1,8 +1,15 @@
 import axios from 'axios';
 
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: API_BASE_URL,
 });
+
+export const getImageUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+};
 
 // Interceptor: Now correctly looks for "authToken" based on your local storage
 api.interceptors.request.use(

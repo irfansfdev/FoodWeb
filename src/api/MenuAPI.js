@@ -1,4 +1,6 @@
-const BASE_URL = 'http://127.0.0.1:8000'; 
+import { API_BASE_URL } from './axios';
+
+const BASE_URL = API_BASE_URL; 
 
 // Helper: Processes fetch responses and extracts exact database errors
 const handleResponse = async (response) => {
@@ -113,7 +115,6 @@ export const fetchCartAPI = async () => {
 
 export const deleteCartItemAPI = async (itemId) => {
   const token = localStorage.getItem("authToken"); 
-  const BASE_URL = "http://127.0.0.1:8000"; 
 
   // Using your exact Django endpoint here:
   const response = await fetch(`${BASE_URL}/order/cart/delete-item/${itemId}/`, {

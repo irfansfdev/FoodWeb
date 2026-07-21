@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
+import { getImageUrl } from "/src/api/axios";
 
 export default function AdminModals({ 
   modalType, 
@@ -17,9 +18,7 @@ export default function AdminModals({
   useEffect(() => {
     if (selectedItem?.image) {
       if (typeof selectedItem.image === "string") {
-        const imageUrl = selectedItem.image.startsWith("http")
-          ? selectedItem.image
-          : `http://127.0.0.1:8000${selectedItem.image}`;
+        const imageUrl = getImageUrl(selectedItem.image);
         setImagePreview(imageUrl);
       } else {
         setImagePreview(null);

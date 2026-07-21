@@ -1,4 +1,4 @@
-import Navbar from "../../components/Common/Navbar";
+import Navbar from "../../Components/Common/Navbar";
 import OrderTrack from "../../Components/OrderTrack/OrderTrack";
 import Footer from "../../Components/Common/Footer"
 

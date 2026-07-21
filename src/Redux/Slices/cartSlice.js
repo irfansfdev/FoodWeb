@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchCartAPI, addToCartAPI, deleteCartItemAPI } from "../../api/cartAPI";
-
-const BASE_URL = "http://127.0.0.1:8000";
+import { getImageUrl } from "../../api/axios";
 
 
 // 1. Fetch Cart
@@ -30,9 +29,7 @@ export const fetchCartAsync = createAsyncThunk(
         let itemImage = "/placeholder-food.jpg"; 
         
         if (foodDetails.image) {
-          itemImage = foodDetails.image.startsWith("http") 
-            ? foodDetails.image 
-            : `${BASE_URL}${foodDetails.image}`;
+          itemImage = getImageUrl(foodDetails.image);
         }
 
         // Support extraction for both normal price and deal combo_price

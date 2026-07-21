@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom"; 
 import OfferCard from "./OfferCard";
 import { getDeals, getRestaurants } from "/src/api/restaurantAPI";
+import { getImageUrl } from "/src/api/axios";
 
 // 1. Add searchQuery as a prop
 function OffersGrid({ selectedCategory = "All", searchQuery = "" }) {
@@ -110,7 +111,7 @@ function OffersGrid({ selectedCategory = "All", searchQuery = "" }) {
                 className="snap-start shrink-0 block no-underline text-inherit"
               >
                 <OfferCard 
-                  image={offer.image?.startsWith("http") ? offer.image : `http://127.0.0.1:8000${offer.image}`} 
+                  image={getImageUrl(offer.image)} 
                   name={offer.name} 
                   restaurantLabel={restaurantName} 
                   discount={`£${offer.combo_price}`} 
@@ -129,7 +130,7 @@ function OffersGrid({ selectedCategory = "All", searchQuery = "" }) {
                 className="block no-underline text-inherit transition-transform duration-200 hover:scale-[1.01]"
               >
                 <OfferCard 
-                  image={offer.image?.startsWith("http") ? offer.image : `http://127.0.0.1:8000${offer.image}`} 
+                  image={getImageUrl(offer.image)} 
                   name={offer.name} 
                   restaurantLabel={restaurantName} 
                   discount={`£${offer.combo_price}`} 

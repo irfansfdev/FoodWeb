@@ -1,4 +1,5 @@
 import { Plus, Edit2, Trash2, Percent } from "lucide-react";
+import { getImageUrl } from "/src/api/axios";
 
 export default function AdminDeals({ deals, openModal, handleDeleteDeal }) {
   return (
@@ -32,7 +33,7 @@ export default function AdminDeals({ deals, openModal, handleDeleteDeal }) {
                    <td className="px-6 py-4">
                     {d.image ? (
                       <img 
-                        src={`http://127.0.0.1:8000${d.image}`} 
+                        src={getImageUrl(d.image)} 
                         alt={d.name} 
                         className="w-12 h-12 rounded-lg object-cover border border-gray-200"
                       />

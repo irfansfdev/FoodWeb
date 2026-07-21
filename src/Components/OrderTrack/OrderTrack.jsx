@@ -5,9 +5,9 @@ import { Clock } from "lucide-react";
 
 import OrderSidebar from "../OrderTrack/OrderSidebar";
 import OrderDetails from "../OrderTrack/OrderDetail";
+import { API_BASE_URL } from "/src/api/axios";
 
-const API_URL = "http://127.0.0.1:8000/order/orders/"; 
-const BACKEND_BASE_URL = "http://127.0.0.1:8000"; 
+const API_URL = `${API_BASE_URL}/order/orders/`; 
 
 // Helpers (passed to children as props)
 const safeString = (val, fallback = "") => {
@@ -22,7 +22,7 @@ const safeImage = (val) => {
   let imgStr = typeof val === "object" ? (val.image || val.url || val.photo || null) : String(val);
   
   if (!imgStr || imgStr === "null" || imgStr === "undefined") return null;
-  if (imgStr.startsWith("/")) return `${BACKEND_BASE_URL}${imgStr}`;
+  if (imgStr.startsWith("/")) return `${API_BASE_URL}${imgStr}`;
   return imgStr;
 };
 

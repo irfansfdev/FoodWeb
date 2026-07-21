@@ -1,7 +1,6 @@
 import { toast } from "react-toastify";
 import plus from "../../assets/plus.png";
-
-const BASE_URL = "http://127.0.0.1:8000"; // Your Django backend URL
+import { getImageUrl } from "/src/api/axios";
 
 const Card = ({ data, onBtnClick }) => {
   const itemName = data.name || "Menu Item";
@@ -10,7 +9,7 @@ const Card = ({ data, onBtnClick }) => {
   // Fix: If the image URL is relative (e.g., starts with /media/), prepend the Django base URL
   let itemImage = "/placeholder-food.jpg"; 
   if (data.image) {
-    itemImage = data.image.startsWith("http") ? data.image : `${BASE_URL}${data.image}`;
+    itemImage = getImageUrl(data.image);
   }
 
   // Wrapper function to handle both the prop function and the toast
