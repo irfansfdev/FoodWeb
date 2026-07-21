@@ -56,7 +56,7 @@ function CategoryGrid() {
   return (
     <section className="px-6 lg:px-20 py-8">
       <h2 className="text-2xl font-bold mb-4">
-        Order.uk Popular Categories 🤩
+        Order.uk Popular Categories 
       </h2>
 
       {/* ========================================== */}

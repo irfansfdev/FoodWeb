@@ -18,22 +18,17 @@ export default function CartDetail({
   const discount = 0;
   const total = subTotal + deliveryFee - discount;
 
-  // FIX: Trigger the toast BEFORE removing the item from state
   const handleRemove = (id, title, name) => {
-    // Fallback just in case your backend uses 'name' instead of 'title'
     const itemName = title || name || "Item"; 
     
-    // 1. Fire the toast first
     toast.info(`${itemName} removed from cart`);
-
-    // 2. Then run the removal function
     onRemove(id);
   };
 
   if (cartItems.length === 0) {
     return (
-      <div className="mx-auto flex min-h-[70vh] flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold">Your Cart is Empty 🛒</h1>
+      <div className="mx-auto flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
+        <h1 className="text-3xl sm:text-4xl font-bold">Your Cart is Empty 🛒</h1>
         <p className="mt-3 text-gray-500">
           Add some delicious food to your cart.
         </p>
@@ -45,20 +40,21 @@ export default function CartDetail({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-10">
       <button
         onClick={() => navigate("/")}
-        className="mb-6 flex items-center gap-2 text-gray-600 hover:text-black cursor-pointer"
+        className="mb-4 sm:mb-6 flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-black cursor-pointer"
       >
         ← Back to Home
       </button>
 
-      <h1 className="mb-8 text-4xl font-bold">Order Checkout</h1>
+      <h1 className="mb-6 sm:mb-8 text-3xl sm:text-4xl font-bold">Order Checkout</h1>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-2xl bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b p-6">
-            <div className="flex items-center gap-3 font-semibold">
+      <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3">
+        {/* LEFT COLUMN: Cart Items */}
+        <div className="lg:col-span-2 rounded-2xl bg-white shadow-lg overflow-hidden h-fit">
+          <div className="flex items-center justify-between border-b p-4 sm:p-6 bg-gray-50/50">
+            <div className="flex items-center gap-3 font-semibold text-lg">
               <i className="fa-solid fa-cart-shopping"></i>
               My Cart
             </div>
@@ -68,58 +64,61 @@ export default function CartDetail({
             return (
               <div
                 key={item.id}
-                className="flex items-center justify-between border-b p-6"
+                className="flex flex-col sm:flex-row sm:items-center justify-between border-b p-4 sm:p-6 gap-4 sm:gap-0"
               >
-                <div className="flex items-center gap-5">
+                {/* Item Details */}
+                <div className="flex items-start sm:items-center gap-4 sm:gap-5 w-full sm:w-auto">
                   <img
                     src={item.image}
                     alt={item.title || item.name}
-                    className="h-24 w-32 rounded-lg object-cover"
+                    className="h-20 w-24 sm:h-24 sm:w-32 rounded-lg object-cover shrink-0"
                   />
 
                   <div className="max-w-md">
-                    <h3 className="text-lg font-bold">{item.title || item.name}</h3>
+                    <h3 className="text-base sm:text-lg font-bold leading-tight">
+                      {item.title || item.name}
+                    </h3>
 
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500 line-clamp-2">
                       {item.description}
                     </p>
 
-                    <p className="mt-3 text-sm font-semibold">
+                    <p className="mt-1 sm:mt-3 text-xs sm:text-sm font-semibold">
                       Extra: Bacon, Cheddar Cheese
                     </p>
 
-                    <p className="text-sm text-gray-500">Without cutlery</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Without cutlery</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-8">
-                  <div className="flex items-center gap-4 rounded-full border px-4 py-2">
+                {/* Actions & Price - Stacked on mobile, row on desktop */}
+                <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 sm:gap-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 mt-2 sm:mt-0">
+                  <div className="flex items-center gap-3 sm:gap-4 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2">
                     <button
                       onClick={() => onDecrease(item.id)}
-                      className="text-xl font-bold cursor-pointer"
+                      className="text-lg sm:text-xl font-bold cursor-pointer px-1 hover:text-gray-600"
                     >
                       -
                     </button>
 
-                    <span className="font-semibold">{item.quantity}</span>
+                    <span className="font-semibold w-4 text-center">{item.quantity}</span>
 
                     <button
                       onClick={() => onIncrease(item.id)}
-                      className="text-xl font-bold cursor-pointer"
+                      className="text-lg sm:text-xl font-bold cursor-pointer px-1 hover:text-gray-600"
                     >
                       +
                     </button>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2">
-                    <h4 className="font-bold whitespace-nowrap">
+                  <div className="flex flex-col items-end gap-1 sm:gap-2">
+                    <h4 className="font-bold text-lg sm:text-base whitespace-nowrap">
                       £{item.price}
                     </h4>
                     
-                    {/* FIX: Passed both title and name safely into the handler */}
                     <button
                       onClick={() => handleRemove(item.id, item.title, item.name)}
-                      className="text-sm font-semibold text-red-500 hover:text-red-700 cursor-pointer hover:underline"
+                      className="text-xs sm:text-sm font-semibold text-red-500 hover:text-red-700 cursor-pointer hover:underline"
                     >
                       Remove
                     </button>
@@ -130,29 +129,30 @@ export default function CartDetail({
           })}
         </div>
 
+        {/* RIGHT COLUMN: Order Summary */}
         {cartItems.length > 0 && (
-          <div className=" rounded-2xl bg-white p-6 shadow-lg">
-            <h2 className="mb-6 text-3xl font-bold">Total Payment</h2>
+          <div className="rounded-2xl bg-white p-5 sm:p-6 shadow-lg h-fit lg:sticky lg:top-8">
+            <h2 className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold">Total Payment</h2>
 
-            <div className="space-y-4">
-              <div className="flex justify-between">
+            <div className="space-y-4 text-sm sm:text-base">
+              <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>£{subTotal.toFixed(2)}</span>
+                <span className="font-medium text-black">£{subTotal.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between text-gray-600">
                 <span>Delivery Fee</span>
-                <span>£{deliveryFee}</span>
+                <span className="font-medium text-black">£{deliveryFee}</span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between text-gray-600">
                 <span>Discount</span>
-                <span>-£{discount}</span>
+                <span className="font-medium text-black">-£{discount}</span>
               </div>
 
-              <hr />
+              <hr className="border-gray-200" />
 
-              <div className="flex justify-between text-xl font-bold">
+              <div className="flex justify-between text-lg sm:text-xl font-bold">
                 <span>Total</span>
                 <span>£{total.toFixed(2)}</span>
               </div>
@@ -161,7 +161,7 @@ export default function CartDetail({
                 onClick={() => {
                   navigate("/checkout");
                 }}
-                className="mt-6 w-full rounded-lg py-3 font-semibold"
+                className="mt-6 w-full rounded-lg py-3 sm:py-4 font-semibold text-base sm:text-lg transition-transform active:scale-[0.98]"
               >
                 Proceed to checkout
               </Button>
