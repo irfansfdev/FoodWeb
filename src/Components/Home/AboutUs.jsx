@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useTheme } from "../../Context/ThemeContext";
 
+import orderFoodImg from "../../assets/HomeAssets/order-food 1.png";
+import foodImg from "../../assets/HomeAssets/food 1.png";
+import orderImg from "../../assets/HomeAssets/order 1.png";
+
 const tabs = [
   "Frequent Questions",
   "Who we are?",
@@ -19,17 +23,17 @@ const questions = [
 const steps = [
   {
     title: "Place an Order!",
-    image: "/src/assets/HomeAssets/order-food 1.png",
+    image: orderFoodImg,
     description: "Place your order through our website or mobile app",
   },
   {
     title: "Track Progress",
-    image: "/src/assets/HomeAssets/food 1.png",
+    image: foodImg,
     description: "Track your order status along with live delivery time",
   },
   {
     title: "Get your Order!",
-    image: "/src/assets/HomeAssets/order 1.png",
+    image: orderImg,
     description: "Receive your order at your doorstep, lightning fast",
   },
 ];
