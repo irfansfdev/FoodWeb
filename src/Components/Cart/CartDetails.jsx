@@ -3,11 +3,11 @@ import { toast } from "react-toastify";
 import Button from "../Common/Button";
 import api from "../../api/axios";
 
-// Helper for Django media & dynamic absolute URLs
+// Bulletproof helper for Django media & dynamic absolute URLs
 const formatImageUrl = (urlStr) => {
   if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
-  
-  // If the backend returns an image object (e.g. { url: "/media/..." })
+
+  // Handle nested image object structures
   if (typeof urlStr === "object") {
     urlStr = urlStr.url || urlStr.src || "";
   }
@@ -16,14 +16,31 @@ const formatImageUrl = (urlStr) => {
     return "https://via.placeholder.com/300?text=No+Image";
   }
 
+  // 1. If it's already an absolute URL, return as-is
   if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
     return urlStr;
   }
 
-  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  // 2. Safely extract base URL from api instance (handles function getters)
+  let rawBaseUrl = api?.defaults?.baseURL;
+
+  if (typeof rawBaseUrl === "function") {
+    try {
+      rawBaseUrl = rawBaseUrl();
+    } catch {
+      rawBaseUrl = null;
+    }
+  }
+
+  // 3. Guarantee rawBaseUrl is strictly a valid string
+  const baseUrl =
+    typeof rawBaseUrl === "string" && rawBaseUrl.trim() !== ""
+      ? rawBaseUrl.replace(/\/$/, "")
+      : "http://127.0.0.1:8000";
+
+  // 4. Clean path formatting
   let path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
 
-  // Prepend /media/ if backend saved plain filename like 'hot_chocolate.png'
   if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
     path = `/media${path}`;
   }
@@ -31,7 +48,7 @@ const formatImageUrl = (urlStr) => {
   return `${baseUrl}${path}`;
 };
 
-// Extracts image string/object across all possible Django item structures
+// Extracts image field across all possible Django item structures
 const getItemImage = (item) => {
   return (
     item.image ||
@@ -71,7 +88,7 @@ export default function CartDetail({
   const total = subTotal + deliveryFee - discount;
 
   const handleRemove = (id, title, name) => {
-    const itemName = title || name || "Item"; 
+    const itemName = title || name || "Item";
     toast.info(`${itemName} removed from cart`);
     onRemove(id);
   };
@@ -134,7 +151,6 @@ export default function CartDetail({
               0
             );
 
-            // Extract raw image string across direct, menu_item, and deal properties
             const rawImage = getItemImage(item);
 
             return (
@@ -197,7 +213,7 @@ export default function CartDetail({
                     <h4 className="font-bold text-lg sm:text-base whitespace-nowrap">
                       £{itemPrice.toFixed(2)}
                     </h4>
-                    
+
                     <button
                       onClick={() => handleRemove(item.id, itemTitle)}
                       className="text-xs sm:text-sm font-semibold text-red-500 hover:text-red-700 cursor-pointer hover:underline"
