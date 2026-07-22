@@ -5,7 +5,7 @@ import { getDeals } from "/src/api/restaurantAPI";
 import { useDispatch, useSelector } from "react-redux"; 
 import { addToCartAsync } from "/src/Redux/Slices/cartSlice"; 
 // Import Redux action instead of Context
-import { openAuthModal } from "/src/redux/Slices/AuthSlice"; 
+import { openAuthModal } from "/src/Redux/Slices/AuthSlice"; 
 import Navbar from "../../Components/Common/Navbar";
 import Footer from "../../Components/Common/Footer";
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react"; 
 import * as AdminAPI from "../../api/AdminAPI"; 
-import * as RestaurantAPI from "../../api/RestaurantAPI"; 
+import * as RestaurantAPI from "../../api/restaurantAPI"; 
 import api from "../../api/axios";
 
 // Components
