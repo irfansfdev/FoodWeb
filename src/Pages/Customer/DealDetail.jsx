@@ -43,7 +43,7 @@ function DealDetail() {
         }
       } catch (error) {
         console.error("Error fetching deal details:", error);
-      } font-medium {
+      } finally {
         setLoading(false);
       }
     };
