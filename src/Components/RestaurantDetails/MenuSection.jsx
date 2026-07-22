@@ -2,37 +2,11 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { openAuthModal } from "../../Redux/Slices/AuthSlice";
-import { fetchMenuItemsAPI, addToCartAPI } from "../../api/MenuAPI";
+import { fetchMenuItemsAPI, addToCartAPI } from "../../api/";
 import RestaurantOffersHeader from "./RestaurantOffersHeader";
 import OfferCategoryTabs from "./OfferCategoryTab";
 import OffersGrid from "./OffersGrid";
 import Card from "./Cards";
-
-const formatImageUrl = (urlStr) => {
-  if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
-
-  if (typeof urlStr === "object") {
-    urlStr = urlStr.url || urlStr.src || "";
-  }
-
-  if (typeof urlStr !== "string" || !urlStr.trim()) {
-    return "https://via.placeholder.com/300?text=No+Image";
-  }
-
-  const pathStr = urlStr.trim();
-
-  if (pathStr.startsWith("http://") || pathStr.startsWith("https://")) {
-    return pathStr;
-  }
-
-  let path = pathStr.startsWith("/") ? pathStr : `/${pathStr}`;
-  
-  if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
-    path = `/media${path}`;
-  }
-
-  return path;
-};
 
 export default function MenuSection() {
   const { id } = useParams();
@@ -48,6 +22,7 @@ export default function MenuSection() {
 
   useEffect(() => {
     const fetchMenu = async () => {
+      // 1. STRICT CHECK: If there is no ID, do not fetch or display anything
       if (!id) {
         setMenuData([]);
         setLoading(false);
@@ -67,17 +42,14 @@ export default function MenuSection() {
           rawItems = responseData.data;
         }
 
-        const itemsToDisplay = rawItems
-          .filter((item) => {
-            const itemRestaurantId =
-              item.restaurant?.id || item.restaurant_id || item.restaurant;
-            return String(itemRestaurantId) === String(id);
-          })
-          .map((item) => ({
-            ...item,
-            image: formatImageUrl(item.image || item.image_url || item.photo),
-          }));
+        // 2. STRICT FILTER: Only keep items that belong to THIS specific restaurant
+        const itemsToDisplay = rawItems.filter((item) => {
+          const itemRestaurantId =
+            item.restaurant?.id || item.restaurant_id || item.restaurant;
+          return String(itemRestaurantId) === String(id);
+        });
 
+        // 3. Group the filtered items into categories
         const groupedCategories = itemsToDisplay.reduce((accumulator, item) => {
           const categoryName = item.category?.name || "General";
           const categoryId = item.category?.id || "general";
@@ -160,6 +132,7 @@ export default function MenuSection() {
                     category.name === activeCategory,
                 )
                 .map((category) => {
+                  // CRASH FIX: Ensure item.name and searchQuery are never undefined!
                   const safeSearchQuery = (searchQuery || "").toLowerCase();
 
                   const searchedItems = category.items.filter((item) => {
