@@ -1,24 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'https://foodwebbackend-production.up.railway.app',
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
-// Interceptor: Now correctly looks for "authToken" based on your local storage
-api.interceptors.request.use(
-  (config) => {
-    // We updated this line to match your exact storage key!
-    const token = localStorage.getItem("authToken");
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("authToken");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+
+  return config;
+});
 
 export default api;
