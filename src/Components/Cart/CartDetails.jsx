@@ -1,13 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Button from "../Common/Button";
-import api from "../../api/axios";
 
-// Bulletproof helper for Django media & dynamic absolute URLs
 const formatImageUrl = (urlStr) => {
   if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
 
-  // Handle nested image object structures
   if (typeof urlStr === "object") {
     urlStr = urlStr.url || urlStr.src || "";
   }
@@ -16,39 +13,21 @@ const formatImageUrl = (urlStr) => {
     return "https://via.placeholder.com/300?text=No+Image";
   }
 
-  // 1. If it's already an absolute URL, return as-is
-  if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-    return urlStr;
+  const pathStr = urlStr.trim();
+
+  if (pathStr.startsWith("http://") || pathStr.startsWith("https://")) {
+    return pathStr;
   }
 
-  // 2. Safely extract base URL from api instance (handles function getters)
-  let rawBaseUrl = api?.defaults?.baseURL;
-
-  if (typeof rawBaseUrl === "function") {
-    try {
-      rawBaseUrl = rawBaseUrl();
-    } catch {
-      rawBaseUrl = null;
-    }
-  }
-
-  // 3. Guarantee rawBaseUrl is strictly a valid string
-  const baseUrl =
-    typeof rawBaseUrl === "string" && rawBaseUrl.trim() !== ""
-      ? rawBaseUrl.replace(/\/$/, "")
-      : "http://127.0.0.1:8000";
-
-  // 4. Clean path formatting
-  let path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
+  let path = pathStr.startsWith("/") ? pathStr : `/${pathStr}`;
 
   if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
     path = `/media${path}`;
   }
 
-  return `${baseUrl}${path}`;
+  return path;
 };
 
-// Extracts image field across all possible Django item structures
 const getItemImage = (item) => {
   return (
     item.image ||
@@ -119,7 +98,6 @@ export default function CartDetail({
       <h1 className="mb-6 sm:mb-8 text-3xl sm:text-4xl font-bold">Order Checkout</h1>
 
       <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3">
-        {/* LEFT COLUMN: Cart Items */}
         <div className="lg:col-span-2 rounded-2xl bg-white shadow-lg overflow-hidden h-fit">
           <div className="flex items-center justify-between border-b p-4 sm:p-6 bg-gray-50/50">
             <div className="flex items-center gap-3 font-semibold text-lg">
@@ -158,7 +136,6 @@ export default function CartDetail({
                 key={item.id}
                 className="flex flex-col sm:flex-row sm:items-center justify-between border-b p-4 sm:p-6 gap-4 sm:gap-0"
               >
-                {/* Item Details */}
                 <div className="flex items-start sm:items-center gap-4 sm:gap-5 w-full sm:w-auto">
                   <img
                     src={formatImageUrl(rawImage)}
@@ -189,7 +166,6 @@ export default function CartDetail({
                   </div>
                 </div>
 
-                {/* Actions & Price */}
                 <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 sm:gap-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 mt-2 sm:mt-0">
                   <div className="flex items-center gap-3 sm:gap-4 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2">
                     <button
@@ -227,7 +203,6 @@ export default function CartDetail({
           })}
         </div>
 
-        {/* RIGHT COLUMN: Order Summary */}
         {cartItems.length > 0 && (
           <div className="rounded-2xl bg-white p-5 sm:p-6 shadow-lg h-fit lg:sticky lg:top-8">
             <h2 className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold">Total Payment</h2>

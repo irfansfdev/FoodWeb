@@ -3,13 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { openAuthModal } from "../../Redux/Slices/AuthSlice";
 import { fetchMenuItemsAPI, addToCartAPI } from "../../api/MenuAPI";
-import api from "../../api/axios";
 import RestaurantOffersHeader from "./RestaurantOffersHeader";
 import OfferCategoryTabs from "./OfferCategoryTab";
 import OffersGrid from "./OffersGrid";
 import Card from "./Cards";
 
-// Bulletproof helper for Django media & dynamic absolute URLs
 const formatImageUrl = (urlStr) => {
   if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
 
@@ -21,36 +19,19 @@ const formatImageUrl = (urlStr) => {
     return "https://via.placeholder.com/300?text=No+Image";
   }
 
-  // 1. If it's already an absolute URL, return as-is
-  if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
-    return urlStr;
+  const pathStr = urlStr.trim();
+
+  if (pathStr.startsWith("http://") || pathStr.startsWith("https://")) {
+    return pathStr;
   }
 
-  // 2. Safely extract base URL from api instance (handles function getters)
-  let rawBaseUrl = api?.defaults?.baseURL;
-
-  if (typeof rawBaseUrl === "function") {
-    try {
-      rawBaseUrl = rawBaseUrl();
-    } catch {
-      rawBaseUrl = null;
-    }
-  }
-
-  // 3. Guarantee rawBaseUrl is strictly a valid string
-  const baseUrl =
-    typeof rawBaseUrl === "string" && rawBaseUrl.trim() !== ""
-      ? rawBaseUrl.replace(/\/$/, "")
-      : "http://127.0.0.1:8000";
-
-  // 4. Clean path formatting
-  let path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
-
+  let path = pathStr.startsWith("/") ? pathStr : `/${pathStr}`;
+  
   if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
     path = `/media${path}`;
   }
 
-  return `${baseUrl}${path}`;
+  return path;
 };
 
 export default function MenuSection() {
@@ -86,7 +67,6 @@ export default function MenuSection() {
           rawItems = responseData.data;
         }
 
-        // Filter for specific restaurant & resolve image URLs cleanly
         const itemsToDisplay = rawItems
           .filter((item) => {
             const itemRestaurantId =
@@ -98,7 +78,6 @@ export default function MenuSection() {
             image: formatImageUrl(item.image || item.image_url || item.photo),
           }));
 
-        // Group filtered items into categories
         const groupedCategories = itemsToDisplay.reduce((accumulator, item) => {
           const categoryName = item.category?.name || "General";
           const categoryId = item.category?.id || "general";

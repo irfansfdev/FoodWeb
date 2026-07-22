@@ -9,7 +9,6 @@ import Navbar from "../../Components/Common/Navbar";
 import Footer from "../../Components/Common/Footer";
 import api from "../../api/axios";
 
-// 👈 Enhanced Helper for Django media & dynamic absolute URLs
 const formatImageUrl = (urlStr) => {
   if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
   if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) return urlStr;
