@@ -3,10 +3,27 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { openAuthModal } from "../../Redux/Slices/AuthSlice";
 import { fetchMenuItemsAPI, addToCartAPI } from "../../api/MenuAPI";
+import api from "../../api/axios"; // 👈 Added import to resolve backend base URL
 import RestaurantOffersHeader from "./RestaurantOffersHeader";
 import OfferCategoryTabs from "./OfferCategoryTab";
 import OffersGrid from "./OffersGrid";
 import Card from "./Cards";
+
+// Helper for Django media & dynamic absolute URLs
+const formatImageUrl = (urlStr) => {
+  if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
+  if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) return urlStr;
+
+  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  let path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
+
+  // Prepend /media/ if backend saved plain filename like 'burger.png'
+  if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
+    path = `/media${path}`;
+  }
+
+  return `${baseUrl}${path}`;
+};
 
 export default function MenuSection() {
   const { id } = useParams();
@@ -42,12 +59,18 @@ export default function MenuSection() {
           rawItems = responseData.data;
         }
 
-        // 2. STRICT FILTER: Only keep items that belong to THIS specific restaurant
-        const itemsToDisplay = rawItems.filter((item) => {
-          const itemRestaurantId =
-            item.restaurant?.id || item.restaurant_id || item.restaurant;
-          return String(itemRestaurantId) === String(id);
-        });
+        // 2. STRICT FILTER & IMAGE URL FORMATTING
+        const itemsToDisplay = rawItems
+          .filter((item) => {
+            const itemRestaurantId =
+              item.restaurant?.id || item.restaurant_id || item.restaurant;
+            return String(itemRestaurantId) === String(id);
+          })
+          .map((item) => ({
+            ...item,
+            // 👈 Format image URL so <Card /> receives a valid absolute URL
+            image: formatImageUrl(item.image || item.image_url || item.photo),
+          }));
 
         // 3. Group the filtered items into categories
         const groupedCategories = itemsToDisplay.reduce((accumulator, item) => {
@@ -132,7 +155,6 @@ export default function MenuSection() {
                     category.name === activeCategory,
                 )
                 .map((category) => {
-                  // CRASH FIX: Ensure item.name and searchQuery are never undefined!
                   const safeSearchQuery = (searchQuery || "").toLowerCase();
 
                   const searchedItems = category.items.filter((item) => {

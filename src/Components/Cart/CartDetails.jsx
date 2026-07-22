@@ -1,12 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Button from "../Common/Button";
-import api from "../../api/axios"; // 
+import api from "../../api/axios";
 
 // Helper for Django media & dynamic absolute URLs
 const formatImageUrl = (urlStr) => {
   if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
-  if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) return urlStr;
+  
+  // If the backend returns an image object (e.g. { url: "/media/..." })
+  if (typeof urlStr === "object") {
+    urlStr = urlStr.url || urlStr.src || "";
+  }
+
+  if (typeof urlStr !== "string" || !urlStr.trim()) {
+    return "https://via.placeholder.com/300?text=No+Image";
+  }
+
+  if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
+    return urlStr;
+  }
 
   const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
   let path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
@@ -19,6 +31,22 @@ const formatImageUrl = (urlStr) => {
   return `${baseUrl}${path}`;
 };
 
+// Extracts image string/object across all possible Django item structures
+const getItemImage = (item) => {
+  return (
+    item.image ||
+    item.image_url ||
+    item.photo ||
+    item.menu_item?.image ||
+    item.menu_item?.image_url ||
+    item.menu_item?.photo ||
+    item.deal?.image ||
+    item.deal?.image_url ||
+    item.deal?.banner ||
+    ""
+  );
+};
+
 export default function CartDetail({
   cartItems,
   onIncrease,
@@ -28,7 +56,13 @@ export default function CartDetail({
   const navigate = useNavigate();
 
   const subTotal = cartItems.reduce((total, item) => {
-    const itemPrice = parseFloat(item.price || item.menu_item?.price || item.deal?.combo_price || item.deal?.price || 0);
+    const itemPrice = parseFloat(
+      item.price ||
+      item.menu_item?.price ||
+      item.deal?.combo_price ||
+      item.deal?.price ||
+      0
+    );
     return total + itemPrice * item.quantity;
   }, 0);
 
@@ -78,12 +112,30 @@ export default function CartDetail({
           </div>
 
           {cartItems.map((item) => {
-            const itemTitle = item.title || item.name || item.menu_item?.name || item.deal?.name || item.deal?.title || "Item";
-            const itemDescription = item.description || item.menu_item?.description || item.deal?.description || "";
-            const itemPrice = parseFloat(item.price || item.menu_item?.price || item.deal?.combo_price || item.deal?.price || 0);
+            const itemTitle =
+              item.title ||
+              item.name ||
+              item.menu_item?.name ||
+              item.deal?.name ||
+              item.deal?.title ||
+              "Item";
 
-            // Extract image string across direct, menu_item, and deal properties
-            const rawImage = item.image || item.image_url || item.menu_item?.image || item.deal?.image;
+            const itemDescription =
+              item.description ||
+              item.menu_item?.description ||
+              item.deal?.description ||
+              "";
+
+            const itemPrice = parseFloat(
+              item.price ||
+              item.menu_item?.price ||
+              item.deal?.combo_price ||
+              item.deal?.price ||
+              0
+            );
+
+            // Extract raw image string across direct, menu_item, and deal properties
+            const rawImage = getItemImage(item);
 
             return (
               <div
@@ -96,6 +148,10 @@ export default function CartDetail({
                     src={formatImageUrl(rawImage)}
                     alt={itemTitle}
                     className="h-20 w-24 sm:h-24 sm:w-32 rounded-lg object-cover shrink-0 bg-gray-100"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/300?text=No+Image";
+                    }}
                   />
 
                   <div className="max-w-md">

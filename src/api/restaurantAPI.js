@@ -22,8 +22,7 @@ export const getCategory = async () => {
         
         console.log("🔍 RAW Category API Response:", response);
 
-        // This ensures that whether your backend sends { data: [...] } or just [...] 
-        // it will correctly return the array instead of undefined.
+        
         if (response.data && response.data.data) {
             return response.data.data;
         }
