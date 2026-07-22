@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: 'https://foodwebbackend-production.up.railway.app',
 });
 
 // Interceptor: Now correctly looks for "authToken" based on your local storage
