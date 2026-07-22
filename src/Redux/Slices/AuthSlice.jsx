@@ -29,15 +29,27 @@ const authSlice = createSlice({
       state.loading = false;
       console.log("🚀 REDUX SUCCESS! Backend Data:", action.payload);
 
-      if (action.payload.data) {
-        state.user = action.payload.data; 
-      }
-      if (action.payload.token && action.payload.token.access) {
-        state.token = action.payload.token.access;
+      // 1. Dynamic User Extraction (Handles .data, .user, or direct user object)
+      const detectedUser = 
+        action.payload.data || 
+        action.payload.user || 
+        (action.payload.id ? action.payload : null);
+
+      if (detectedUser) {
+        state.user = detectedUser;
+        localStorage.setItem('authUser', JSON.stringify(detectedUser));
       }
 
-      if (state.token) localStorage.setItem('authToken', state.token);
-      if (state.user) localStorage.setItem('authUser', JSON.stringify(state.user));
+      // 2. Dynamic Token Extraction (Handles token.access, direct token, or access string)
+      const detectedToken = 
+        action.payload?.token?.access || 
+        action.payload?.token || 
+        action.payload?.access;
+
+      if (detectedToken && typeof detectedToken === "string") {
+        state.token = detectedToken;
+        localStorage.setItem('authToken', detectedToken);
+      }
       
       // Auto-close modal on successful login
       state.isAuthModalOpen = false; 
@@ -65,5 +77,14 @@ const authSlice = createSlice({
   },
 });
 
-export const { authStart, authSuccess, authFailure, logout, clearError, openAuthModal, closeAuthModal } = authSlice.actions;
+export const { 
+  authStart, 
+  authSuccess, 
+  authFailure, 
+  logout, 
+  clearError, 
+  openAuthModal, 
+  closeAuthModal 
+} = authSlice.actions;
+
 export default authSlice.reducer;

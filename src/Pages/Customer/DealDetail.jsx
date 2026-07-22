@@ -4,19 +4,23 @@ import { toast } from "react-toastify";
 import { getDeals } from "/src/api/restaurantAPI";
 import { useDispatch, useSelector } from "react-redux"; 
 import { addToCartAsync } from "/src/Redux/Slices/cartSlice"; 
-// Import Redux action instead of Context
 import { openAuthModal } from "/src/Redux/Slices/AuthSlice"; 
 import Navbar from "../../Components/Common/Navbar";
 import Footer from "../../Components/Common/Footer";
 import api from "../../api/axios";
 
-// 👈 Helper function updated to construct image URLs dynamically
+// 👈 Enhanced Helper for Django media & dynamic absolute URLs
 const formatImageUrl = (urlStr) => {
-  if (!urlStr) return "";
-  if (urlStr.startsWith("http")) return urlStr;
+  if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
+  if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) return urlStr;
 
   const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
-  const path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
+  let path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
+
+  // Prepend /media/ if backend saved plain filename like 'hot_chocolate.png'
+  if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
+    path = `/media${path}`;
+  }
 
   return `${baseUrl}${path}`;
 };
@@ -96,9 +100,10 @@ function DealDetail() {
 
   const handleAddToCart = async () => {
     const token = localStorage.getItem("authToken");
+    const storedUser = localStorage.getItem("authUser") ? JSON.parse(localStorage.getItem("authUser")) : null;
+    const currentUser = user || storedUser; // 👈 Fallback check so reload won't trigger modal if logged in
     
-    // Check user and dispatch Redux modal action
-    if (!user || Object.keys(user).length === 0 || !token) {
+    if (!currentUser || !token) {
       dispatch(openAuthModal()); 
       return; 
     }
@@ -110,9 +115,6 @@ function DealDetail() {
       toast.success(`Added ${cartQuantity}x ${deal.name} to cart!`, {
         position: "bottom-right",
         autoClose: 2500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
         theme: "colored"
       });
     } catch (error) {
@@ -135,7 +137,6 @@ function DealDetail() {
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
-          
           <div className="lg:col-span-7 flex flex-col gap-4">
             <div className="relative aspect-video sm:aspect-[4/3] w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100">
               {discountPercent > 0 && (

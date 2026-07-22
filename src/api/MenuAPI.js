@@ -1,30 +1,4 @@
-import api from "./axios"
-
-// Helper: Processes fetch responses and extracts exact database errors
-const handleResponse = async (response) => {
-  const data = await response.json().catch(() => ({})); 
-
-  if (!response.ok) {
-    console.error(`🚨 Backend Error Info [Status ${response.status}]:`, data);
-
-    let errorMessage = `Server error (${response.status} ${response.statusText}).`;
-    
-    if (data.message) errorMessage = data.message;
-    else if (data.detail) errorMessage = data.detail;
-    else if (data.error) errorMessage = data.error;
-    else if (typeof data === 'object') {
-      const firstKey = Object.keys(data)[0];
-      if (firstKey && Array.isArray(data[firstKey])) {
-        errorMessage = `${firstKey}: ${data[firstKey][0]}`;
-      } else if (firstKey) {
-        errorMessage = data[firstKey];
-      }
-    }
-    throw new Error(errorMessage);
-  }
-
-  return data;
-};
+import api from "./axios";
 
 // Helper: Automatically attaches JWT Auth Token from local storage
 const getAuthHeaders = () => {
@@ -41,37 +15,28 @@ const getAuthHeaders = () => {
 
 export const fetchMenuItemsAPI = async () => {
   try {
-    const response = await fetch(`${api}/restaurants/all-menuitem`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return await handleResponse(response);
+    const response = await api.get('/restaurants/all-menuitem');
+    return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Failed to fetch menu items.');
+    throw new Error(error.response?.data?.message || 'Failed to fetch menu items.');
   }
 };
 
 export const fetchDealsAPI = async () => {
   try {
-    const response = await fetch(`${api}/restaurants/deals`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return await handleResponse(response);
+    const response = await api.get('/restaurants/deals');
+    return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Failed to fetch deals.');
+    throw new Error(error.response?.data?.message || 'Failed to fetch deals.');
   }
 };
 
 export const fetchCategoriesAPI = async () => {
   try {
-    const response = await fetch(`${api}/restaurants/categories`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return await handleResponse(response);
+    const response = await api.get('/restaurants/categories');
+    return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Failed to fetch categories.');
+    throw new Error(error.response?.data?.message || 'Failed to fetch categories.');
   }
 };
 
@@ -82,50 +47,40 @@ export const fetchCategoriesAPI = async () => {
 // POST /order/cart/add/
 export const addToCartAPI = async (itemId, quantity = 1) => {
   try {
-    const response = await fetch(`${api}/order/cart/add/`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ 
+    const response = await api.post(
+      '/order/cart/add/',
+      { 
         menu_item_id: itemId, 
         quantity: quantity 
-      }),
-    });
-    return await handleResponse(response);
+      },
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Failed to add item to cart.');
+    throw new Error(error.response?.data?.message || 'Failed to add item to cart.');
   }
 };
 
 // GET /order/cart/
 export const fetchCartAPI = async () => {
   try {
-    const response = await fetch(`${api}/order/cart/`, {
-      method: 'GET',
+    const response = await api.get('/order/cart/', {
       headers: getAuthHeaders(),
     });
-    return await handleResponse(response);
+    return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Failed to retrieve cart entries.');
+    throw new Error(error.response?.data?.message || 'Failed to retrieve cart entries.');
   }
 };
 
-// Replace your existing deleteCartItemAPI with this one:
-
+// DELETE /order/cart/delete-item/:id/
 export const deleteCartItemAPI = async (itemId) => {
-  const token = localStorage.getItem("authToken"); 
-  // Using your exact Django endpoint here:
-  const response = await fetch(`${api}/order/cart/delete-item/${itemId}/`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      // Change "Bearer" to "Token" if Django throws an auth error
-      "Authorization": `Bearer ${token}`, 
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to delete item from database");
+  try {
+    const response = await api.delete(`/order/cart/delete-item/${itemId}/`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to delete item from database');
   }
-
-  return true; 
 };

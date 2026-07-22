@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux"; 
+import { logout } from "../../Redux/Slices/AuthSlice";
 import { Menu } from "lucide-react"; 
 import * as AdminAPI from "../../api/AdminAPI"; 
 import * as RestaurantAPI from "../../api/restaurantAPI"; 
@@ -18,6 +20,8 @@ import AdminAnalytics from "../../Components/AdminComponents/AdminAnalytics";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const dispatch = useDispatch(); 
+
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -62,7 +66,6 @@ export default function AdminDashboard() {
           RestaurantAPI.getCategory ? RestaurantAPI.getCategory() : Promise.resolve([]),
           AdminAPI.analyticsAllOrdersByStatus().catch(() => []),    
           AdminAPI.analyticsOverview().catch(() => null),
-          // We default to asking the API for 'weekly' on first load
           AdminAPI.analyticsRevenueOverTime('weekly').catch(() => []) 
         ]);
         
@@ -88,10 +91,7 @@ export default function AdminDashboard() {
 
   const handleTimeFrameChange = async (newTimeframe) => {
     try {
-      console.log(`🗣️ Asking backend for: ${newTimeframe}`); // <--- Added
       const fetchedRevenue = await AdminAPI.analyticsRevenueOverTime(newTimeframe);
-      console.log(`📥 Backend replied with:`, fetchedRevenue); // <--- Added
-      
       setRevenueOverTime(fetchedRevenue || []);
     } catch (error) {
       console.error("Failed to change timeframe:", error);
@@ -99,7 +99,6 @@ export default function AdminDashboard() {
   };
 
   const openModal = async (type, item = null) => {
-    // ... (Your openModal code stays exactly the same)
     setModalType(type);
 
     if (item && item.id) {
@@ -138,7 +137,6 @@ export default function AdminDashboard() {
   };
 
   const handleModalSubmit = async (formDataOrPayload, menuItemsArray = []) => {
-    // ... (Your handleModalSubmit code stays exactly the same)
     try {
       const isEdit = !!selectedItem;
       const id = selectedItem?.id;
@@ -252,10 +250,10 @@ export default function AdminDashboard() {
     ["pending", "accepted", "preparing", "out_for_delivery"].includes(o.current_status)
   ).length;
 
+  // 👈 Clean Redux Logout Implementation
   const handleLogout = () => {
-    localStorage.clear();
-    sessionStorage.clear(); 
-    window.location.href = "/login";
+    dispatch(logout());
+    navigate("/login");
   };
 
   return (
@@ -297,15 +295,13 @@ export default function AdminDashboard() {
               {activeTab === "menu" && <AdminMenuItems menuItems={menuItems} searchQuery={searchQuery} setSearchQuery={setSearchQuery} openModal={openModal} handleDeleteMenuitem={handleDeleteMenuitem} />}
               {activeTab === "categories" && <AdminCategories categories={categories} openModal={openModal} handleDeleteCategory={handleDeleteCategory} />}
               {activeTab === "deals" && <AdminDeals deals={deals} openModal={openModal} handleDeleteDeal={handleDeleteDeal} />}
-              
-              {/* ✨ ANALYTICS TAB UPDATED */}
               {activeTab === "analytics" && (
                 <AdminAnalytics 
                   ordersByStatus={ordersByStatus} 
                   analyticsOverviewData={analyticsOverviewData}
                   revenueOverTime={revenueOverTime}
                   totalRestaurantsCount={restaurants.length}
-                  onTimeFrameChange={handleTimeFrameChange} // 👈 Added Walkie Talkie!
+                  onTimeFrameChange={handleTimeFrameChange} 
                 />
               )}
             </>
