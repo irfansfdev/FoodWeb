@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import Button from "../Common/Button"; 
-import { API_BASE_URL } from "/src/api/axios";
+import Button from "../common/Button"; 
 
 export default function CheckoutDetail({ cartItems = [] }) {
   const navigate = useNavigate();
@@ -43,7 +42,7 @@ export default function CheckoutDetail({ cartItems = [] }) {
     try {
       const token = localStorage.getItem("authToken");
 
-      const response = await fetch(`${API_BASE_URL}/order/checkout/`, {
+      const response = await fetch("http://127.0.0.1:8000/order/checkout/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

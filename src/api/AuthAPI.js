@@ -1,7 +1,4 @@
-import { API_BASE_URL } from './axios';
-
-const BASE_URL = API_BASE_URL; 
-
+import api from "./axios"
 // Helper function to process fetch responses and extract database errors
 const handleResponse = async (response) => {
   const data = await response.json();
@@ -30,7 +27,7 @@ const handleResponse = async (response) => {
 
 export const loginUserAPI = async (credentials) => {
   try {
-    const response = await fetch(`${BASE_URL}/user/login/`, {
+    const response = await fetch(`${api}/user/login/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,7 +44,7 @@ export const loginUserAPI = async (credentials) => {
 
 export const registerUserAPI = async (userData) => {
   try {
-    const response = await fetch(`${BASE_URL}/user/register/`, {
+    const response = await fetch(`${api}/user/register/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

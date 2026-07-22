@@ -3,26 +3,33 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Clock } from "lucide-react"; 
 
+// 1. Import your custom axios instance as 'api'
+import api from "../../api/axios"; 
+
 import OrderSidebar from "../OrderTrack/OrderSidebar";
 import OrderDetails from "../OrderTrack/OrderDetail";
-import { API_BASE_URL } from "/src/api/axios";
 
-const API_URL = `${API_BASE_URL}/order/orders/`; 
-
-// Helpers (passed to children as props)
+// Helpers
 const safeString = (val, fallback = "") => {
   if (!val) return fallback;
   if (typeof val === "object") return val.name || val.title || val.address_line1 || val.address || fallback;
   return String(val);
 };
 
+// 2. Fetch base URL dynamically from your 'api' instance
+const getBaseUrl = () => {
+  if (!api.defaults.baseURL) return "";
+  return api.defaults.baseURL.replace(/\/$/, ""); 
+};
+
 const safeImage = (val) => {
-  if (!val) return null; // 👈 Returns null instead of fallback image now
+  if (!val) return null; 
   
   let imgStr = typeof val === "object" ? (val.image || val.url || val.photo || null) : String(val);
   
   if (!imgStr || imgStr === "null" || imgStr === "undefined") return null;
-  if (imgStr.startsWith("/")) return `${API_BASE_URL}${imgStr}`;
+  
+  if (imgStr.startsWith("/")) return `${getBaseUrl()}${imgStr}`;
   return imgStr;
 };
 
@@ -35,6 +42,7 @@ export default function OrderTrack() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // We still check for token early just to redirect if they are logged out
     const token = localStorage.getItem("authToken");
 
     if (!token) {
@@ -45,17 +53,10 @@ export default function OrderTrack() {
 
     const fetchOrderFromList = async () => {
       try {
-        const response = await fetch(API_URL, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        // 3. Clean API call! Your interceptor handles the Bearer token automatically
+        const response = await api.get("/order/orders/");
 
-        if (!response.ok) throw new Error("Could not load your orders.");
-
-        const rawData = await response.json();
+        const rawData = response.data;
         let ordersArray = [];
         
         if (rawData && typeof rawData === "object" && Array.isArray(rawData.data)) {

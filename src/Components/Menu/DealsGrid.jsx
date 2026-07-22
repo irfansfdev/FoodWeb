@@ -3,12 +3,11 @@ import { Link } from "react-router-dom";
 import DealCard from "./dealCard";
 import { getDeals, getRestaurants } from "/src/api/restaurantAPI";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getImageUrl } from "/src/api/axios";
 
 const tabs = [
   "Pizza & Fast Food",
   "Sushi",
-  "Vegan",
+  "Desserts",
   "Others",
 ];
 
@@ -144,7 +143,7 @@ function DealsGrid() {
             className="w-[150px] snap-start shrink-0 block no-underline text-inherit"
           >
             <DealCard 
-              image={getImageUrl(deal.image)} 
+              image={deal.image?.startsWith("http") ? deal.image : `http://127.0.0.1:8000${deal.image}`} 
               name={deal.name} 
               restaurantLabel={getRestaurantName(deal)} 
               discount={`$${deal.combo_price}`} 
@@ -179,7 +178,7 @@ function DealsGrid() {
                 className="w-[calc(33.333%-14px)] min-w-[280px] flex-shrink-0 snap-start block no-underline text-inherit transition-transform duration-200 hover:scale-[1.01]"
               >
                 <DealCard 
-                  image={getImageUrl(deal.image)} 
+                  image={deal.image?.startsWith("http") ? deal.image : `http://127.0.0.1:8000${deal.image}`} 
                   name={deal.name} 
                   restaurantLabel={getRestaurantName(deal)} 
                   discount={`$${deal.combo_price}`} 
@@ -204,7 +203,7 @@ function DealsGrid() {
               className="block no-underline text-inherit transition-transform duration-200 hover:scale-[1.01]"
             >
               <DealCard 
-                image={getImageUrl(deal.image)} 
+                image={deal.image?.startsWith("http") ? deal.image : `http://127.0.0.1:8000${deal.image}`} 
                 name={deal.name} 
                 restaurantLabel={getRestaurantName(deal)} 
                 discount={`$${deal.combo_price}`} 

@@ -1,6 +1,4 @@
-import { API_BASE_URL } from './axios';
-
-const BASE_URL = `${API_BASE_URL}/order/cart`; 
+import api from "./axios"
 
 // Helper to get auth token from localStorage using your exact key: "authToken"
 const getAuthHeaders = () => {
@@ -14,7 +12,7 @@ const getAuthHeaders = () => {
 
 // GET: Fetch the current cart
 export const fetchCartAPI = async () => {
-  const response = await fetch(`${BASE_URL}/`, { 
+  const response = await fetch(`${api}/`, { 
     method: "GET",
     headers: getAuthHeaders() 
   });
@@ -24,7 +22,7 @@ export const fetchCartAPI = async () => {
 
 // POST: Add an item or deal to the cart using a dynamic payload
 export const addToCartAPI = async (payload) => {
-  const response = await fetch(`${BASE_URL}/add/`, {
+  const response = await fetch(`${api}/add/`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(payload), 
@@ -35,7 +33,7 @@ export const addToCartAPI = async (payload) => {
 
 // DELETE: Remove an item from the cart
 export const deleteCartItemAPI = async (itemId) => {
-  const response = await fetch(`${BASE_URL}/delete-item/${itemId}/`, {
+  const response = await fetch(`${api}/delete-item/${itemId}/`, {
     method: "DELETE",
     headers: getAuthHeaders(),
   });

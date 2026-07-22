@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-
 // Guards (assuming this file is inside the Routes folder)
 import ProtectedRoute from "./ProtectedRoutes";
 import AdminRoute from "./AdminRoute";
@@ -15,7 +14,6 @@ import Cart from "../../Pages/Customer/Cart";
 import DealDetail from "../../Pages/Customer/DealDetail";
 import CategoryDetail from "../../Pages/Customer/CategoryDetail";
 import Checkout from "../../Pages/Customer/Checkout";
-import NotFound from "../../Pages/Customer/NotFound";
 
 import DashboardHome from "../../Pages/Admin/AdminDashboard"
 
@@ -116,7 +114,6 @@ export default function AppRoutes() {
         }
       />
 
-      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

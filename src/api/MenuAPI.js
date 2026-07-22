@@ -1,6 +1,4 @@
-import { API_BASE_URL } from './axios';
-
-const BASE_URL = API_BASE_URL; 
+import api from "./axios"
 
 // Helper: Processes fetch responses and extracts exact database errors
 const handleResponse = async (response) => {
@@ -43,7 +41,7 @@ const getAuthHeaders = () => {
 
 export const fetchMenuItemsAPI = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/restaurants/all-menuitem`, {
+    const response = await fetch(`${api}/restaurants/all-menuitem`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -55,7 +53,7 @@ export const fetchMenuItemsAPI = async () => {
 
 export const fetchDealsAPI = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/restaurants/deals`, {
+    const response = await fetch(`${api}/restaurants/deals`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -67,7 +65,7 @@ export const fetchDealsAPI = async () => {
 
 export const fetchCategoriesAPI = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/restaurants/categories`, {
+    const response = await fetch(`${api}/restaurants/categories`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -84,7 +82,7 @@ export const fetchCategoriesAPI = async () => {
 // POST /order/cart/add/
 export const addToCartAPI = async (itemId, quantity = 1) => {
   try {
-    const response = await fetch(`${BASE_URL}/order/cart/add/`, {
+    const response = await fetch(`${api}/order/cart/add/`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ 
@@ -101,7 +99,7 @@ export const addToCartAPI = async (itemId, quantity = 1) => {
 // GET /order/cart/
 export const fetchCartAPI = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/order/cart/`, {
+    const response = await fetch(`${api}/order/cart/`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -115,9 +113,8 @@ export const fetchCartAPI = async () => {
 
 export const deleteCartItemAPI = async (itemId) => {
   const token = localStorage.getItem("authToken"); 
-
   // Using your exact Django endpoint here:
-  const response = await fetch(`${BASE_URL}/order/cart/delete-item/${itemId}/`, {
+  const response = await fetch(`${api}/order/cart/delete-item/${itemId}/`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

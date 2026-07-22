@@ -1,5 +1,4 @@
 import { Plus, Edit2, Trash2 } from "lucide-react";
-import { getImageUrl } from "/src/api/axios";
 
 export default function AdminRestaurants({ restaurants, openModal, handleDeleteRestaurant }) {
   return (
@@ -35,7 +34,7 @@ export default function AdminRestaurants({ restaurants, openModal, handleDeleteR
                   <td className="px-6 py-4">
                     {r.image ? (
                       <img 
-                        src={getImageUrl(r.image)} 
+                        src={`http://127.0.0.1:8000${r.image}`} 
                         alt={r.name} 
                         className="w-12 h-12 rounded-lg object-cover border border-gray-200"
                       />
