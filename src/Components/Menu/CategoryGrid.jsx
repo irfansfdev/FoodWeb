@@ -3,6 +3,19 @@ import { useState, useEffect, useRef } from "react";
 import { getMenuItems } from "/src/api/restaurantAPI";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react"; 
+import api from "../../api/axios"; // 
+
+// 👈 Helper to dynamically construct the image URL
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return "/src/assets/category-placeholder.png";
+  
+  if (imagePath.startsWith("http")) return imagePath;
+  
+  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  const path = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+  
+  return `${baseUrl}${path}`;
+};
 
 function CategoryGrid() {
   const [menuItems, setMenuItems] = useState([]);
@@ -67,11 +80,8 @@ function CategoryGrid() {
           // Locked mobile width to 140px so they don't squish
           <div key={menuItem.category.id} className="w-[140px] snap-start shrink-0">
             <CategoryCard
-              image={
-                menuItem.image
-                  ? `http://127.0.0.1:8000${menuItem.image}`
-                  : "/src/assets/category-placeholder.png"
-              }
+              // 👇 Using the helper function here
+              image={getImageUrl(menuItem.image)}
               name={menuItem.category.name}
               restaurantCount={`${getRestaurantCount(menuItem.category.id)} Restaurants`}
               onClick={() => navigate(`/category/${menuItem.category.id}`)}
@@ -104,11 +114,8 @@ function CategoryGrid() {
                 className="w-[calc(16.666%-16px)] min-w-[160px] flex-shrink-0 snap-start"
               >
                 <CategoryCard
-                  image={
-                    menuItem.image
-                      ? `http://127.0.0.1:8000${menuItem.image}`
-                      : "/src/assets/category-placeholder.png"
-                  }
+                  // 👇 Using the helper function here
+                  image={getImageUrl(menuItem.image)}
                   name={menuItem.category.name}
                   restaurantCount={`${getRestaurantCount(menuItem.category.id)} Restaurants`}
                   onClick={() => navigate(`/category/${menuItem.category.id}`)}
@@ -130,11 +137,8 @@ function CategoryGrid() {
           {uniqueCategories.map((menuItem) => (
             <CategoryCard
               key={menuItem.category.id}
-              image={
-                menuItem.image
-                  ? `http://127.0.0.1:8000${menuItem.image}`
-                  : "/src/assets/category-placeholder.png"
-              }
+              // 👇 Using the helper function here
+              image={getImageUrl(menuItem.image)}
               name={menuItem.category.name}
               restaurantCount={`${getRestaurantCount(menuItem.category.id)} Restaurants`}
               onClick={() => navigate(`/category/${menuItem.category.id}`)}

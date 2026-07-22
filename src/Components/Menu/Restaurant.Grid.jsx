@@ -3,6 +3,19 @@ import { useState, useEffect, useRef } from "react";
 import { getRestaurants } from "/src/api/restaurantAPI";
 import { useNavigate } from "react-router-dom"; 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import api from "../../api/axios"; // 
+
+// 👈 Helper to dynamically construct the image URL
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  
+  if (imagePath.startsWith("http")) return imagePath;
+  
+  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  const path = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+  
+  return `${baseUrl}${path}`;
+};
 
 function RestaurantGrid({ type }) {
   const [restaurants, setRestaurants] = useState([]);
@@ -49,7 +62,8 @@ function RestaurantGrid({ type }) {
             <div key={restaurantId} className="flex-shrink-0 snap-start">
               <RestaurantCard 
                 {...r} 
-                image={`http://127.0.0.1:8000${r.image}`} 
+                // 👇 Using the helper function here
+                image={getImageUrl(r.image)} 
                 onClick={() => {
                   if (restaurantId) navigate(`/restaurant/${restaurantId}`);
                   else console.error("Could not find an ID for this restaurant:", r);
@@ -88,7 +102,8 @@ function RestaurantGrid({ type }) {
                 <div key={restaurantId} className="flex-shrink-0 snap-start">
                   <RestaurantCard 
                     {...r} 
-                    image={`http://127.0.0.1:8000${r.image}`} 
+                    // 👇 Using the helper function here
+                    image={getImageUrl(r.image)} 
                     onClick={() => {
                       if (restaurantId) navigate(`/restaurant/${restaurantId}`);
                     }} 
@@ -117,7 +132,8 @@ function RestaurantGrid({ type }) {
               <div key={restaurantId}>
                 <RestaurantCard 
                   {...r} 
-                  image={`http://127.0.0.1:8000${r.image}`} 
+                  // 👇 Using the helper function here
+                  image={getImageUrl(r.image)} 
                   onClick={() => {
                     if (restaurantId) navigate(`/restaurant/${restaurantId}`);
                   }} 

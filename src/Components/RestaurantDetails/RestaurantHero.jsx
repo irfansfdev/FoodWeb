@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { FaClock } from "react-icons/fa";
 import { useTheme } from "../../Context/ThemeContext";
 import { getRestaurants } from "/src/api/restaurantAPI"; 
+import api from "../../api/axios"; // 
 
 import backgroundImage from "../../assets/Group 23.png";
 import backgroundDarkImage from "../../assets/Group 23 Dark.png";
@@ -12,6 +13,17 @@ import OrderComplete from "../../assets/Order Completed.png";
 
 // Fallbacks for images
 import burgerImage from "../../assets/Rectangle 44.png";
+
+// 👈 Helper function updated to construct image URLs dynamically
+const formatImageUrl = (urlStr) => {
+  if (!urlStr) return burgerImage; 
+  if (urlStr.startsWith("http")) return urlStr;
+
+  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  const path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
+
+  return `${baseUrl}${path}`;
+};
 
 export default function RestaurantHero() {
   const { theme } = useTheme();
@@ -43,12 +55,6 @@ export default function RestaurantHero() {
       setLoading(false);
     }
   }, [id]);
-
-  // Helper function to handle image URLs safely
-  const formatImageUrl = (urlStr) => {
-    if (!urlStr) return burgerImage; 
-    return urlStr.startsWith("http") ? urlStr : `http://127.0.0.1:8000${urlStr}`;
-  };
 
   // 1. LOADING STATE: Clean loading indicator while waiting for the database
   if (loading) {

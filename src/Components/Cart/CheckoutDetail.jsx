@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Button from "../Common/Button"; 
+import api from "../../api/axios"; // 
 
 export default function CheckoutDetail({ cartItems = [] }) {
   const navigate = useNavigate();
@@ -42,36 +43,16 @@ export default function CheckoutDetail({ cartItems = [] }) {
     try {
       const token = localStorage.getItem("authToken");
 
-      const response = await fetch("http://127.0.0.1:8000/order/checkout/", {
-        method: "POST",
+      // 👇 Replaced fetch with api.post and removed the hardcoded localhost URL
+      const response = await api.post("/order/checkout/", orderPayload, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`, 
         },
-        body: JSON.stringify(orderPayload),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("🚨 Full Backend Error:", errorData);
-        
-        let errorMessage = "Failed to place order.";
-        if (errorData) {
-          if (errorData.error) {
-            const backendError = errorData.error;
-            const firstKey = Object.keys(backendError)[0];
-            errorMessage = `${firstKey}: ${backendError[firstKey]}`;
-          } else if (typeof errorData === 'object' && !errorData.detail && !errorData.message) {
-            const firstKey = Object.keys(errorData)[0];
-            errorMessage = `${firstKey}: ${errorData[firstKey][0]}`;
-          } else {
-            errorMessage = errorData.detail || errorData.message || errorMessage;
-          }
-        }
-        throw new Error(errorMessage);
-      }
-
-      const responseData = await response.json();
+      // 👇 Axios automatically parses JSON into response.data
+      const responseData = response.data;
       console.log("🎁 SUCCESS! Django Response Data:", responseData);
       
       toast.success("Order successfully placed!");
@@ -99,10 +80,8 @@ export default function CheckoutDetail({ cartItems = [] }) {
       console.log("🎯 Extracted Order ID:", newOrderId);
       
       if (newOrderId && String(newOrderId) !== "undefined" && String(newOrderId) !== "null") {
-        // Save to localStorage so the Navbar "Track Order" link can find it!
         localStorage.setItem("latestOrderId", newOrderId);
         
-        // Notify if they ordered from multiple restaurants (multiple orders)
         if (responseData.successful_orders && responseData.successful_orders.length > 1) {
           toast.info(`Your order was split into ${responseData.successful_orders.length} deliveries.`);
         }
@@ -116,7 +95,30 @@ export default function CheckoutDetail({ cartItems = [] }) {
       
     } catch (error) {
       console.error("Failed to place order:", error);
-      toast.error(error.message || "Something went wrong. Please try again.");
+      
+      let errorMessage = "Something went wrong. Please try again.";
+
+      // 👇 Handled Axios-specific error structures
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        console.error("🚨 Full Backend Error:", errorData);
+        
+        if (errorData.error) {
+          const backendError = errorData.error;
+          const firstKey = Object.keys(backendError)[0];
+          errorMessage = `${firstKey}: ${backendError[firstKey]}`;
+        } else if (typeof errorData === 'object' && !errorData.detail && !errorData.message) {
+          const firstKey = Object.keys(errorData)[0];
+          errorMessage = `${firstKey}: ${errorData[firstKey][0]}`;
+        } else {
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        }
+      } else if (error.request) {
+         // The request was made but no response was received (e.g. network issue)
+         errorMessage = "Network error. Please check your connection to the server.";
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

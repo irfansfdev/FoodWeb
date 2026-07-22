@@ -1,4 +1,21 @@
 import { Plus, Edit2, Trash2 } from "lucide-react";
+import api from "../../api/axios"; 
+
+// Helper to dynamically safely construct the image URL
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  
+  // If the backend already returns a full URL (e.g., from Cloudinary or S3), use it directly
+  if (imagePath.startsWith("http")) return imagePath;
+  
+  // Get the base URL from your axios config and remove any trailing slash
+  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  
+  // Ensure the image path starts with a slash
+  const path = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+  
+  return `${baseUrl}${path}`;
+};
 
 export default function AdminRestaurants({ restaurants, openModal, handleDeleteRestaurant }) {
   return (
@@ -15,7 +32,6 @@ export default function AdminRestaurants({ restaurants, openModal, handleDeleteR
           <table className="w-full text-left text-sm border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200/80 text-gray-500 font-bold text-xs uppercase tracking-wider">
-                
                 <th className="px-6 py-4">Restaurant Name</th>
                 <th className="px-6 py-4 w-44">Image</th>
                 <th className="px-6 py-4 text-right">Actions</th>
@@ -34,7 +50,8 @@ export default function AdminRestaurants({ restaurants, openModal, handleDeleteR
                   <td className="px-6 py-4">
                     {r.image ? (
                       <img 
-                        src={`http://127.0.0.1:8000${r.image}`} 
+                        // 👇 Using the helper function here instead of hardcoding
+                        src={getImageUrl(r.image)} 
                         alt={r.name} 
                         className="w-12 h-12 rounded-lg object-cover border border-gray-200"
                       />

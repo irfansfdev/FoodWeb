@@ -8,6 +8,18 @@ import { addToCartAsync } from "/src/Redux/Slices/cartSlice";
 import { openAuthModal } from "/src/Redux/Slices/AuthSlice"; 
 import Navbar from "../../Components/Common/Navbar";
 import Footer from "../../Components/Common/Footer";
+import api from "../../api/axios";
+
+// 👈 Helper function updated to construct image URLs dynamically
+const formatImageUrl = (urlStr) => {
+  if (!urlStr) return "";
+  if (urlStr.startsWith("http")) return urlStr;
+
+  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  const path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
+
+  return `${baseUrl}${path}`;
+};
 
 function DealDetail() {
   const { id } = useParams();
@@ -31,7 +43,7 @@ function DealDetail() {
         }
       } catch (error) {
         console.error("Error fetching deal details:", error);
-      } finally {
+      } font-medium {
         setLoading(false);
       }
     };
@@ -109,11 +121,6 @@ function DealDetail() {
     } finally {
       setIsAdding(false);
     }
-  };
-
-  const formatImageUrl = (urlStr) => {
-    if (!urlStr) return "";
-    return urlStr.startsWith("http") ? urlStr : `http://127.0.0.1:8000${urlStr}`;
   };
 
   return (
