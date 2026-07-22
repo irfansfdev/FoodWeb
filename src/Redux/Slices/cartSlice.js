@@ -25,22 +25,28 @@ export const fetchCartAsync = createAsyncThunk(
       const normalizedItems = items.map((cartItem) => {
         // Fallback checks for deal objects, menu_items, or product objects
         const foodDetails = cartItem.deal || cartItem.menu_item || cartItem.product || cartItem;
-        let itemImage = "/placeholder-food.jpg"; 
-        
-        if (foodDetails.image) {
-          itemImage = foodDetails.image.startsWith("http") 
-            ? foodDetails.image 
-            : `${api}${foodDetails.image}`;
-        }
+
+        const getImageUrl = (img) => {
+          if (!img) return "/placeholder-food.jpg";
+          if (typeof img === "object") img = img.url || img.src || img.path || "";
+          if (typeof img === "string" && img.startsWith("http")) return img;
+          const baseUrl = api.defaults && api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+          let path = (img || "").toString();
+          if (!path.startsWith("/")) path = `/${path}`;
+          if (!path.startsWith("/media/") && !path.startsWith("/static/")) path = `/media${path}`;
+          return baseUrl ? `${baseUrl}${path}` : path;
+        };
+
+        const itemImage = getImageUrl(foodDetails.image || foodDetails.image_url || foodDetails.photo);
 
         // Support extraction for both normal price and deal combo_price
         const itemPrice = parseFloat(foodDetails.price) || parseFloat(foodDetails.combo_price) || 0;
-        
+
         return {
-          id: cartItem.id, 
+          id: cartItem.id,
           title: foodDetails.name || foodDetails.title || "Delicious Item",
           description: foodDetails.description || "Freshly prepared for you.",
-          price: itemPrice, 
+          price: itemPrice,
           image: itemImage,
           quantity: cartItem.quantity || 1,
         };

@@ -19,10 +19,16 @@ export default function AdminModals({
   useEffect(() => {
     if (selectedItem?.image) {
       if (typeof selectedItem.image === "string") {
-        const imageUrl = selectedItem.image.startsWith("http")
-          ? selectedItem.image
-          : `${api}${selectedItem.image}`;
-        setImagePreview(imageUrl);
+        const buildUrl = (img) => {
+          if (!img) return null;
+          if (img.startsWith("http")) return img;
+          const baseUrl = api.defaults && api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+          let path = img.startsWith("/") ? img : `/${img}`;
+          if (!path.startsWith("/media/") && !path.startsWith("/static/")) path = `/media${path}`;
+          return baseUrl ? `${baseUrl}${path}` : path;
+        };
+
+        setImagePreview(buildUrl(selectedItem.image));
       } else {
         setImagePreview(null);
       }

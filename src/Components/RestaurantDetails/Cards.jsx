@@ -6,11 +6,29 @@ const Card = ({ data, onBtnClick }) => {
   const itemName = data.name || "Menu Item";
   const itemPrice = data.price ? `$${data.price}` : "Price Unavailable";
   
-  // Fix: If the image URL is relative (e.g., starts with /media/), prepend the Django base URL
-  let itemImage = "/placeholder-food.jpg"; 
-  if (data.image) {
-    itemImage = data.image.startsWith("http") ? data.image : `${api}${data.image}`;
-  }
+  // Robust image URL builder: handle objects, absolute URLs, and prepend backend base URL for relative paths
+  const getImageUrl = (img) => {
+    if (!img) return "https://via.placeholder.com/300?text=No+Image";
+
+    if (typeof img === "object") {
+      img = img.url || img.src || img.path || "";
+    }
+
+    if (typeof img === "string" && img.startsWith("http")) return img;
+
+    const baseUrl = api.defaults && api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+    let path = (img || "").toString();
+    if (!path.startsWith("/")) path = `/${path}`;
+
+    // If backend stores plain filename, ensure /media prefix so Django serves it correctly
+    if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
+      path = `/media${path}`;
+    }
+
+    return baseUrl ? `${baseUrl}${path}` : path;
+  };
+
+  const itemImage = getImageUrl(data.image);
 
   // Wrapper function to handle both the prop function and the toast
   const handleAddToCart = () => {
