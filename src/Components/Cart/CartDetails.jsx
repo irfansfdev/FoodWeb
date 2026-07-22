@@ -1,6 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Button from "../Common/Button";
+import api from "../../api/axios"; // 
+
+// Helper for Django media & dynamic absolute URLs
+const formatImageUrl = (urlStr) => {
+  if (!urlStr) return "https://via.placeholder.com/300?text=No+Image";
+  if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) return urlStr;
+
+  const baseUrl = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, "") : "";
+  let path = urlStr.startsWith("/") ? urlStr : `/${urlStr}`;
+
+  // Prepend /media/ if backend saved plain filename like 'hot_chocolate.png'
+  if (!path.startsWith("/media/") && !path.startsWith("/static/")) {
+    path = `/media${path}`;
+  }
+
+  return `${baseUrl}${path}`;
+};
 
 export default function CartDetail({
   cartItems,
@@ -11,7 +28,8 @@ export default function CartDetail({
   const navigate = useNavigate();
 
   const subTotal = cartItems.reduce((total, item) => {
-    return total + item.price * item.quantity;
+    const itemPrice = parseFloat(item.price || item.menu_item?.price || item.deal?.combo_price || item.deal?.price || 0);
+    return total + itemPrice * item.quantity;
   }, 0);
 
   const deliveryFee = 0;
@@ -20,7 +38,6 @@ export default function CartDetail({
 
   const handleRemove = (id, title, name) => {
     const itemName = title || name || "Item"; 
-    
     toast.info(`${itemName} removed from cart`);
     onRemove(id);
   };
@@ -61,6 +78,13 @@ export default function CartDetail({
           </div>
 
           {cartItems.map((item) => {
+            const itemTitle = item.title || item.name || item.menu_item?.name || item.deal?.name || item.deal?.title || "Item";
+            const itemDescription = item.description || item.menu_item?.description || item.deal?.description || "";
+            const itemPrice = parseFloat(item.price || item.menu_item?.price || item.deal?.combo_price || item.deal?.price || 0);
+
+            // Extract image string across direct, menu_item, and deal properties
+            const rawImage = item.image || item.image_url || item.menu_item?.image || item.deal?.image;
+
             return (
               <div
                 key={item.id}
@@ -69,19 +93,21 @@ export default function CartDetail({
                 {/* Item Details */}
                 <div className="flex items-start sm:items-center gap-4 sm:gap-5 w-full sm:w-auto">
                   <img
-                    src={item.image}
-                    alt={item.title || item.name}
-                    className="h-20 w-24 sm:h-24 sm:w-32 rounded-lg object-cover shrink-0"
+                    src={formatImageUrl(rawImage)}
+                    alt={itemTitle}
+                    className="h-20 w-24 sm:h-24 sm:w-32 rounded-lg object-cover shrink-0 bg-gray-100"
                   />
 
                   <div className="max-w-md">
                     <h3 className="text-base sm:text-lg font-bold leading-tight">
-                      {item.title || item.name}
+                      {itemTitle}
                     </h3>
 
-                    <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500 line-clamp-2">
-                      {item.description}
-                    </p>
+                    {itemDescription && (
+                      <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500 line-clamp-2">
+                        {itemDescription}
+                      </p>
+                    )}
 
                     <p className="mt-1 sm:mt-3 text-xs sm:text-sm font-semibold">
                       Extra: Bacon, Cheddar Cheese
@@ -91,7 +117,7 @@ export default function CartDetail({
                   </div>
                 </div>
 
-                {/* Actions & Price - Stacked on mobile, row on desktop */}
+                {/* Actions & Price */}
                 <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 sm:gap-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 mt-2 sm:mt-0">
                   <div className="flex items-center gap-3 sm:gap-4 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2">
                     <button
@@ -113,11 +139,11 @@ export default function CartDetail({
 
                   <div className="flex flex-col items-end gap-1 sm:gap-2">
                     <h4 className="font-bold text-lg sm:text-base whitespace-nowrap">
-                      £{item.price}
+                      £{itemPrice.toFixed(2)}
                     </h4>
                     
                     <button
-                      onClick={() => handleRemove(item.id, item.title, item.name)}
+                      onClick={() => handleRemove(item.id, itemTitle)}
                       className="text-xs sm:text-sm font-semibold text-red-500 hover:text-red-700 cursor-pointer hover:underline"
                     >
                       Remove
@@ -158,9 +184,7 @@ export default function CartDetail({
               </div>
 
               <Button
-                onClick={() => {
-                  navigate("/checkout");
-                }}
+                onClick={() => navigate("/checkout")}
                 className="mt-6 w-full rounded-lg py-3 sm:py-4 font-semibold text-base sm:text-lg transition-transform active:scale-[0.98]"
               >
                 Proceed to checkout

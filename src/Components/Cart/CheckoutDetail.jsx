@@ -51,7 +51,6 @@ export default function CheckoutDetail({ cartItems = [] }) {
         },
       });
 
-      // 👇 Axios automatically parses JSON into response.data
       const responseData = response.data;
       console.log("🎁 SUCCESS! Django Response Data:", responseData);
       
