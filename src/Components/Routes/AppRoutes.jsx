@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-// Guards (assuming this file is inside the Routes folder)
+
+// Guards
 import ProtectedRoute from "./ProtectedRoutes";
 import AdminRoute from "./AdminRoute";
 import CustomerRoute from "./CustomerRoute";
@@ -15,15 +16,20 @@ import DealDetail from "../../Pages/Customer/DealDetail";
 import CategoryDetail from "../../Pages/Customer/CategoryDetail";
 import Checkout from "../../Pages/Customer/Checkout";
 
-import DashboardHome from "../../Pages/Admin/AdminDashboard"
-
-
+// Admin Pages
+import DashboardHome from "../../Pages/Admin/AdminDashboard";
 
 export default function AppRoutes() {
   return (
     <Routes>
       {/* ========================================== */}
-      {/* 🔓 PUBLIC CUSTOMER ROUTES (Admins Blocked) */}
+      {/* 🔓 UNPROTECTED AUTH ROUTES (No Guards)     */}
+      {/* ========================================== */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      {/* ========================================== */}
+      {/* 🛒 PUBLIC CUSTOMER ROUTES (Admins Blocked) */}
       {/* ========================================== */}
       <Route
         path="/"
@@ -38,22 +44,6 @@ export default function AppRoutes() {
         element={
           <CustomerRoute>
             <Restaurant />
-          </CustomerRoute>
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          <CustomerRoute>
-            <Login />
-          </CustomerRoute>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <CustomerRoute>
-            <Signup />
           </CustomerRoute>
         }
       />
@@ -94,7 +84,7 @@ export default function AppRoutes() {
         }
       />
       <Route
-        path="/Checkout"
+        path="/checkout"
         element={
           <ProtectedRoute>
             <Checkout />
@@ -103,7 +93,7 @@ export default function AppRoutes() {
       />
 
       {/* ========================================== */}
-      {/* 🛠️ PROTECTED ADMIN ROUTES                   */}
+      {/* 🛠️ PROTECTED ADMIN ROUTES                  */}
       {/* ========================================== */}
       <Route
         path="/admin/dashboard"
@@ -113,7 +103,6 @@ export default function AppRoutes() {
           </AdminRoute>
         }
       />
-
     </Routes>
   );
 }
