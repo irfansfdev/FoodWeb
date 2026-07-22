@@ -3,11 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify"; 
 import { getDeals } from "/src/api/restaurantAPI";
 import { useDispatch, useSelector } from "react-redux"; 
-import { addToCartAsync } from "/src/redux/Slices/cartSlice"; 
+import { addToCartAsync } from "/src/Redux/Slices/cartSlice"; 
 // Import Redux action instead of Context
-import { openAuthModal } from "/src/redux/Slices/authSlice"; 
-import Navbar from "../../components/Common/Navbar";
-import Footer from "../../components/Common/Footer";
+import { openAuthModal } from "/src/redux/Slices/AuthSlice"; 
+import Navbar from "../../Components/Common/Navbar";
+import Footer from "../../Components/Common/Footer";
 
 function DealDetail() {
   const { id } = useParams();

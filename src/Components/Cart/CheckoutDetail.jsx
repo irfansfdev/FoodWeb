@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import Button from "../common/Button"; 
+import Button from "../Common/Button"; 
 
 export default function CheckoutDetail({ cartItems = [] }) {
   const navigate = useNavigate();
