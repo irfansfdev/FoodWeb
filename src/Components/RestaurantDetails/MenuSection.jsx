@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { openAuthModal } from "../../Redux/Slices/authSlice";
+import { openAuthModal } from "../../Redux/Slices/AuthSlice";
 import { fetchMenuItemsAPI, addToCartAPI } from "../../api/MenuAPI";
 import RestaurantOffersHeader from "./RestaurantOffersHeader";
 import OfferCategoryTabs from "./OfferCategoryTab";

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom"; 
-import DealCard from "./dealCard";
+import DealCard from "./DealCard";
 import { getDeals, getRestaurants } from "/src/api/restaurantAPI";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 

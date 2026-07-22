@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import plus from "../../assets/plus.png";
+import plus from "../../assets/Plus.png";
 import api from "../../api/axios"
 
 const Card = ({ data, onBtnClick }) => {
