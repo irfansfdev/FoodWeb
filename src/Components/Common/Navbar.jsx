@@ -159,9 +159,9 @@ const Navbar = () => {
                         Restaurants <ChevronDown size={16} className={`transition-transform duration-200 ${showDropdown ? "rotate-180" : ""}`}/>
                       </button>
 
-                      {/* Dropdown Menu */}
+                      {/* Dropdown Menu - Added max-h and overflow-y-auto here */}
                       {showDropdown && (
-                        <div className="absolute top-[45px] left-1/2 -translate-x-1/2 w-[220px] bg-white border border-gray-100 shadow-xl rounded-xl overflow-hidden z-50 py-2">
+                        <div className="absolute top-[45px] left-1/2 -translate-x-1/2 w-[220px] bg-white border border-gray-100 shadow-xl rounded-xl z-50 py-2 max-h-[300px] overflow-y-auto">
                           {restaurants.length > 0 ? (
                             restaurants.map((res) => (
                               <Link
@@ -325,8 +325,9 @@ const Navbar = () => {
                       <ChevronDown size={18} className={`transition-transform duration-200 ${mobileDropdownOpen ? "rotate-180" : ""}`} />
                     </button>
                     
+                    {/* Mobile Dropdown - Added max-h and overflow-y-auto here */}
                     {mobileDropdownOpen && (
-                      <div className="flex flex-col pl-4 mt-3 gap-3 border-l-2 border-brand-orange/30">
+                      <div className="flex flex-col pl-4 mt-3 gap-3 border-l-2 border-brand-orange/30 max-h-[250px] overflow-y-auto py-1">
                         {restaurants.length > 0 ? (
                           restaurants.map((res) => (
                             <Link
