@@ -2,7 +2,7 @@
 
 A modern and responsive **Food Ordering Web Application** built with **React, Vite, Tailwind CSS, Django, and PostgreSQL**. FoodWeb allows users to explore restaurants, browse menus, manage their accounts, and place food orders through a clean and responsive interface.
 
-**🔗 Live Demo:** `https://chick-bite.vercel.app/`
+**🔗 Live Demo:** [View Live Website](https://chick-bite.vercel.app/)
 
 ---
 
@@ -178,7 +178,7 @@ Deployed using **Railway**
 
 **PostgreSQL**
 
-**🔗 Live Website:** `[https://chick-bite.vercel.app/)`
+**🔗 Live Website:** [Visit FoodWeb](https://chick-bite.vercel.app/)
 
 ---
 
